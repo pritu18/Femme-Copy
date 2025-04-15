@@ -52,6 +52,13 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+                femme: {
+                    purple: '#9b87f5',
+                    'purple-dark': '#7E69AB',
+                    'purple-light': '#E5DEFF',
+                    dark: '#1A1F2C',
+                    gray: '#8E9196',
+                },
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
