@@ -111,7 +111,7 @@ export default function Dashboard() {
                 mode="single"
                 selected={date}
                 onSelect={handleDaySelect}
-                className="p-3 pointer-events-auto rounded-md bg-white shadow-md w-full max-w-[290px]"
+                className="p-3 pointer-events-auto rounded-md bg-white shadow-md w-full max-w-[275px]"
                 modifiers={{
                   periodDay: periodDays.map(d => d.date)
                 }}
