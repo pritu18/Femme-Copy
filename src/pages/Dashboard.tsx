@@ -106,7 +106,7 @@ export default function Dashboard() {
                 Log your period days by selecting dates on the calendar
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex justify-center items-center">
+            <CardContent className="flex justify-start items-center">
               <Calendar
                 mode="single"
                 selected={date}
