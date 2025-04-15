@@ -118,7 +118,12 @@ export default function Dashboard() {
                 mode="single"
                 selected={date}
                 onSelect={handleDaySelect}
-                className="p-3 pointer-events-auto rounded-md bg-white shadow-md w-full max-w-[500px]" // Increased width and centered
+                className="p-6 pointer-events-auto rounded-lg bg-white shadow-lg w-full max-w-[600px] aspect-square" // Increased size and made square
+                classNames={{
+                  caption: "flex justify-center pt-1 relative items-center text-lg",
+                  nav_button: "h-10 w-10", // Larger navigation buttons
+                  day: "h-12 w-12 p-2 font-medium", // Larger day cells
+                }}
                 modifiers={{
                   periodDay: periodDays.map(d => d.date)
                 }}
@@ -138,7 +143,7 @@ export default function Dashboard() {
                       <div className={`relative h-full w-full flex items-center justify-center ${isPeriod ? 'text-femme-burgundy' : ''}`}>
                         {props.date.getDate()}
                         {isPeriod && (
-                          <div className="absolute -bottom-1 h-1 w-1 rounded-full bg-femme-burgundy"></div>
+                          <div className="absolute -bottom-1 h-1.5 w-1.5 rounded-full bg-femme-burgundy"></div>
                         )}
                       </div>
                     );
