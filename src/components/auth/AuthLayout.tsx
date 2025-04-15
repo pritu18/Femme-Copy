@@ -1,5 +1,6 @@
 
 import { ReactNode } from "react";
+import { Heart, Flower } from "lucide-react";
 import { Logo } from "../common/Logo";
 import { BackgroundPattern } from "./BackgroundPattern";
 
@@ -13,8 +14,10 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       <BackgroundPattern />
       <div className="w-full max-w-md mb-6 relative z-10">
         <Logo className="mx-auto" />
-        <h2 className="text-center text-femme-gray mt-2 text-sm font-medium">
+        <h2 className="text-center text-femme-gray mt-2 text-sm font-medium flex items-center justify-center gap-2">
+          <Flower size={16} className="text-femme-purple opacity-70" />
           Your personal cycle companion
+          <Heart size={16} className="text-femme-purple opacity-70" />
         </h2>
       </div>
       <div className="relative z-10">

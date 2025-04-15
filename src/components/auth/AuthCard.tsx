@@ -19,7 +19,7 @@ export function AuthCard({
   className 
 }: AuthCardProps) {
   return (
-    <Card className={cn("w-full max-w-md shadow-lg border-femme-purple-light", className)}>
+    <Card className={cn("w-full max-w-md shadow-lg border-femme-purple-light bg-white/90 backdrop-blur-sm", className)}>
       <CardHeader className="space-y-1 text-center">
         <CardTitle className="text-2xl font-bold text-femme-purple">
           {title}
