@@ -93,23 +93,23 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-femme-purple-light to-white">
+    <div className="min-h-screen bg-gradient-to-br from-femme-beige to-femme-pink-light">
       <header className="bg-white shadow-md py-4">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <Logo className="h-10" />
           <div className="flex items-center gap-4">
-            <span className="text-femme-dark font-medium">Welcome, Jane</span>
-            <Button variant="outline">Sign Out</Button>
+            <span className="text-femme-burgundy font-medium">Welcome, Jane</span>
+            <Button variant="outline" className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">Sign Out</Button>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <Card className="col-span-1 lg:col-span-2 shadow-lg border-femme-purple border-opacity-20">
+          <Card className="col-span-1 lg:col-span-2 shadow-lg border-femme-taupe border-opacity-50">
             <CardHeader>
-              <CardTitle className="text-femme-purple text-2xl">Track Your Cycle</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-femme-burgundy text-2xl">Track Your Cycle</CardTitle>
+              <CardDescription className="text-femme-burgundy/70">
                 Log your period days by selecting dates on the calendar
               </CardDescription>
             </CardHeader>
@@ -124,8 +124,8 @@ export default function Dashboard() {
                 }}
                 modifiersStyles={{
                   periodDay: {
-                    backgroundColor: "#9b87f5",
-                    color: "white",
+                    backgroundColor: "#EFA8A8",
+                    color: "#7D1F27",
                     fontWeight: "bold"
                   }
                 }}
@@ -135,10 +135,10 @@ export default function Dashboard() {
                     const isPeriod = isPeriodDay(day);
                     
                     return (
-                      <div className={`relative h-full w-full flex items-center justify-center ${isPeriod ? 'text-white' : ''}`}>
+                      <div className={`relative h-full w-full flex items-center justify-center ${isPeriod ? 'text-femme-burgundy' : ''}`}>
                         {props.date.getDate()}
                         {isPeriod && (
-                          <div className="absolute -bottom-1 h-1 w-1 rounded-full bg-white"></div>
+                          <div className="absolute -bottom-1 h-1 w-1 rounded-full bg-femme-burgundy"></div>
                         )}
                       </div>
                     );
@@ -149,41 +149,41 @@ export default function Dashboard() {
             <CardFooter className="flex justify-center">
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="bg-femme-purple hover:bg-femme-purple-dark">
+                  <Button className="bg-femme-pink hover:bg-femme-burgundy text-white">
                     <Plus className="h-4 w-4 mr-2" /> Add Period Day
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[425px] bg-white border-femme-taupe">
                   <DialogHeader>
-                    <DialogTitle className="text-femme-purple">
+                    <DialogTitle className="text-femme-burgundy">
                       {selectedDay ? "Update Period Data" : "Add Period Day"}
                     </DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="text-femme-burgundy/70">
                       {date && format(date, "MMMM d, yyyy")}
                     </DialogDescription>
                   </DialogHeader>
                   
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Flow</h4>
+                      <h4 className="text-sm font-medium text-femme-burgundy">Flow</h4>
                       <div className="flex gap-4">
                         <Button 
                           variant={flow === "light" ? "default" : "outline"}
-                          className={flow === "light" ? "bg-femme-purple" : ""}
+                          className={flow === "light" ? "bg-femme-pink text-femme-burgundy hover:bg-femme-pink/90" : "border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy"}
                           onClick={() => setFlow("light")}
                         >
                           Light
                         </Button>
                         <Button 
                           variant={flow === "medium" ? "default" : "outline"}
-                          className={flow === "medium" ? "bg-femme-purple" : ""}
+                          className={flow === "medium" ? "bg-femme-pink text-femme-burgundy hover:bg-femme-pink/90" : "border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy"}
                           onClick={() => setFlow("medium")}
                         >
                           Medium
                         </Button>
                         <Button 
                           variant={flow === "heavy" ? "default" : "outline"}
-                          className={flow === "heavy" ? "bg-femme-purple" : ""}
+                          className={flow === "heavy" ? "bg-femme-pink text-femme-burgundy hover:bg-femme-pink/90" : "border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy"}
                           onClick={() => setFlow("heavy")}
                         >
                           Heavy
@@ -192,19 +192,19 @@ export default function Dashboard() {
                     </div>
 
                     <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Notes</h4>
+                      <h4 className="text-sm font-medium text-femme-burgundy">Notes</h4>
                       <Textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="How do you feel today? Any symptoms?"
-                        className="min-h-[100px]"
+                        className="min-h-[100px] border-femme-taupe/50 focus:border-femme-pink focus:ring-femme-pink"
                       />
                     </div>
                   </div>
 
                   <DialogFooter>
                     <Button 
-                      className="bg-femme-purple hover:bg-femme-purple-dark"
+                      className="bg-femme-pink hover:bg-femme-burgundy text-white"
                       onClick={handleAddPeriodDay}
                     >
                       Save
@@ -216,39 +216,39 @@ export default function Dashboard() {
           </Card>
 
           <div className="col-span-1">
-            <Card className="shadow-lg border-femme-purple border-opacity-20 mb-8">
+            <Card className="shadow-lg border-femme-taupe border-opacity-50 mb-8">
               <CardHeader>
-                <CardTitle className="text-femme-purple text-xl">Next Period</CardTitle>
+                <CardTitle className="text-femme-burgundy text-xl">Next Period</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center gap-2 text-femme-gray">
-                  <CalendarIcon className="h-5 w-5 text-femme-purple" />
+                <div className="flex items-center gap-2 text-femme-burgundy/70">
+                  <CalendarIcon className="h-5 w-5 text-femme-pink" />
                   <span>Estimated in 14 days</span>
                 </div>
               </CardContent>
             </Card>
             
-            <Card className="shadow-lg border-femme-purple border-opacity-20">
+            <Card className="shadow-lg border-femme-taupe border-opacity-50">
               <CardHeader>
-                <CardTitle className="text-femme-purple text-xl">Recent Entries</CardTitle>
+                <CardTitle className="text-femme-burgundy text-xl">Recent Entries</CardTitle>
               </CardHeader>
               <CardContent>
                 {periodDays.length > 0 ? (
                   <div className="space-y-4">
                     {periodDays.slice(-3).reverse().map((day, index) => (
-                      <div key={index} className="border-b pb-3 last:border-0">
-                        <div className="font-medium">{format(day.date, "MMMM d, yyyy")}</div>
-                        <div className="text-sm text-femme-gray">
+                      <div key={index} className="border-b border-femme-taupe/30 pb-3 last:border-0">
+                        <div className="font-medium text-femme-burgundy">{format(day.date, "MMMM d, yyyy")}</div>
+                        <div className="text-sm text-femme-burgundy/70">
                           Flow: <span className="capitalize">{day.flow}</span>
                         </div>
                         {day.notes && (
-                          <div className="text-sm mt-1 line-clamp-2">{day.notes}</div>
+                          <div className="text-sm mt-1 line-clamp-2 text-femme-burgundy/80">{day.notes}</div>
                         )}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-femme-gray text-center py-4">
+                  <div className="text-femme-burgundy/70 text-center py-4">
                     No entries yet. Start tracking your period by selecting dates on the calendar.
                   </div>
                 )}

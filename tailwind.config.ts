@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -53,11 +54,16 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
                 femme: {
-                    purple: '#9b87f5',
-                    'purple-dark': '#7E69AB',
-                    'purple-light': '#E5DEFF',
+                    beige: '#F5E6E0',
+                    pink: '#EFA8A8',
+                    'pink-light': '#FAD4D4',
+                    taupe: '#D9B4A3',
+                    burgundy: '#7D1F27',
                     dark: '#1A1F2C',
                     gray: '#8E9196',
+                    'purple-dark': '#7E69AB',
+                    'purple-light': '#E5DEFF',
+                    purple: '#9b87f5',
                 },
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',

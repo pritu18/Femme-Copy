@@ -27,11 +27,11 @@ export default function Auth() {
           description="Enter your details to access your account"
           footer={
             <div className="w-full text-center space-y-4">
-              <div className="text-sm text-femme-gray">
+              <div className="text-sm text-femme-burgundy/70">
                 Don't have an account?{" "}
                 <Button 
                   variant="link" 
-                  className="text-femme-purple hover:text-femme-purple-dark p-0 h-auto" 
+                  className="text-femme-pink hover:text-femme-burgundy p-0 h-auto" 
                   onClick={() => setView("signup")}
                 >
                   Sign up
@@ -53,11 +53,11 @@ export default function Auth() {
           description="Track your cycle with Femme"
           footer={
             <div className="w-full text-center space-y-4">
-              <div className="text-sm text-femme-gray">
+              <div className="text-sm text-femme-burgundy/70">
                 Already have an account?{" "}
                 <Button 
                   variant="link" 
-                  className="text-femme-purple hover:text-femme-purple-dark p-0 h-auto" 
+                  className="text-femme-pink hover:text-femme-burgundy p-0 h-auto" 
                   onClick={() => setView("login")}
                 >
                   Log in
@@ -76,7 +76,7 @@ export default function Auth() {
           footer={
             <Button 
               variant="link" 
-              className="text-femme-purple hover:text-femme-purple-dark mt-2" 
+              className="text-femme-pink hover:text-femme-burgundy mt-2" 
               onClick={() => setView("login")}
             >
               Back to login
