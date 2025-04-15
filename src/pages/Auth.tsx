@@ -22,7 +22,7 @@ export default function Auth() {
     <AuthLayout>
       {view === "login" && (
         <AuthCard 
-          title="Welcome back" 
+          title="Welcome" 
           description="Enter your details to access your account"
           footer={
             <div className="w-full text-center space-y-4">
