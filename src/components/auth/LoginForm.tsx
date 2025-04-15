@@ -98,7 +98,7 @@ export function LoginForm({ onSuccess, onForgotPassword }: LoginFormProps) {
                   type="button"
                   variant="link"
                   size="sm"
-                  className="text-xs text-femme-purple-dark p-0 h-auto"
+                  className="text-xs text-femme-burgundy p-0 h-auto"
                   onClick={onForgotPassword}
                 >
                   Forgot password?
@@ -118,7 +118,7 @@ export function LoginForm({ onSuccess, onForgotPassword }: LoginFormProps) {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-full px-3 py-2 text-femme-gray hover:text-femme-purple"
+                    className="absolute right-0 top-0 h-full px-3 py-2 text-femme-gray hover:text-femme-burgundy"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -133,7 +133,7 @@ export function LoginForm({ onSuccess, onForgotPassword }: LoginFormProps) {
         <Button 
           type="submit" 
           disabled={isLoading} 
-          className="w-full bg-femme-purple hover:bg-femme-purple-dark"
+          className="w-full bg-femme-pink hover:bg-femme-burgundy text-white"
         >
           {isLoading ? (
             <>

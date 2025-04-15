@@ -61,9 +61,6 @@ export default {
                     burgundy: '#7D1F27',
                     dark: '#1A1F2C',
                     gray: '#8E9196',
-                    'purple-dark': '#7E69AB',
-                    'purple-light': '#E5DEFF',
-                    purple: '#9b87f5',
                 },
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',

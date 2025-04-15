@@ -92,7 +92,7 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
         <Button 
           type="submit" 
           disabled={isLoading} 
-          className="w-full bg-femme-purple hover:bg-femme-purple-dark"
+          className="w-full bg-femme-pink hover:bg-femme-burgundy text-white"
         >
           {isLoading ? (
             <>

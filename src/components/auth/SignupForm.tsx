@@ -133,7 +133,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-full px-3 py-2 text-femme-gray hover:text-femme-purple"
+                    className="absolute right-0 top-0 h-full px-3 py-2 text-femme-gray hover:text-femme-burgundy"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -165,7 +165,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-full px-3 py-2 text-femme-gray hover:text-femme-purple"
+                    className="absolute right-0 top-0 h-full px-3 py-2 text-femme-gray hover:text-femme-burgundy"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
                     {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -180,7 +180,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         <Button 
           type="submit" 
           disabled={isLoading} 
-          className="w-full mt-2 bg-femme-purple hover:bg-femme-purple-dark"
+          className="w-full mt-2 bg-femme-pink hover:bg-femme-burgundy text-white"
         >
           {isLoading ? (
             <>
