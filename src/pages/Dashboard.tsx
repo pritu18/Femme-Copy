@@ -113,12 +113,12 @@ export default function Dashboard() {
                 Log your period days by selecting dates on the calendar
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex justify-center items-center">
               <Calendar
                 mode="single"
                 selected={date}
                 onSelect={handleDaySelect}
-                className="p-3 pointer-events-auto rounded-md bg-white shadow-md mx-auto"
+                className="p-3 pointer-events-auto rounded-md bg-white shadow-md w-full max-w-[500px]" // Increased width and centered
                 modifiers={{
                   periodDay: periodDays.map(d => d.date)
                 }}
