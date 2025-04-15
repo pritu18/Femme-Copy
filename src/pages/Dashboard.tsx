@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { format } from "date-fns";
+import { format, addDays, subDays } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Calendar as CalendarIcon } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, ArrowLeft, ArrowRight } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { toast } from "@/hooks/use-toast";
 
@@ -85,6 +85,34 @@ export default function Dashboard() {
     setIsDialogOpen(true);
   };
 
+  const handleQuickLog = (daysOffset: number) => {
+    if (!date) return;
+    
+    const targetDate = daysOffset === 0 ? new Date() : 
+                     daysOffset > 0 ? addDays(new Date(), daysOffset) : 
+                     subDays(new Date(), Math.abs(daysOffset));
+    
+    const existingDayIndex = periodDays.findIndex(
+      day => day.date.toDateString() === targetDate.toDateString()
+    );
+    
+    if (existingDayIndex >= 0) {
+      const updatedDays = [...periodDays];
+      updatedDays[existingDayIndex] = {
+        ...updatedDays[existingDayIndex],
+        flow
+      };
+      setPeriodDays(updatedDays);
+    } else {
+      setPeriodDays([...periodDays, { date: targetDate, flow }]);
+    }
+    
+    toast({
+      title: "Period day logged",
+      description: `Quick logged ${format(targetDate, "MMMM d, yyyy")} with ${flow} flow.`,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-femme-beige to-femme-pink-light">
       <header className="bg-white shadow-md py-4">
@@ -106,7 +134,7 @@ export default function Dashboard() {
                 Log your period days by selecting dates on the calendar
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex justify-start items-center">
+            <CardContent className="flex flex-col md:flex-row justify-start items-start md:items-center gap-6">
               <Calendar
                 mode="single"
                 selected={date}
@@ -138,6 +166,77 @@ export default function Dashboard() {
                   }
                 }}
               />
+              
+              <div className="bg-white p-4 rounded-md shadow-md w-full max-w-[275px]">
+                <h3 className="text-femme-burgundy text-lg font-medium mb-3">Quick Log</h3>
+                <p className="text-femme-burgundy/70 text-sm mb-4">Log your period days for the current cycle quickly:</p>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"
+                    onClick={() => handleQuickLog(-1)}
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-1" />
+                    Yesterday
+                  </Button>
+                  
+                  <Button 
+                    className="bg-femme-pink hover:bg-femme-burgundy text-white"
+                    onClick={() => handleQuickLog(0)}
+                  >
+                    Today
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"
+                    onClick={() => handleQuickLog(1)}
+                  >
+                    Tomorrow
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"
+                    onClick={() => setIsDialogOpen(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Custom
+                  </Button>
+                </div>
+                
+                <div className="mt-4">
+                  <p className="text-femme-burgundy/70 text-sm mb-2">Flow intensity for quick logging:</p>
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm"
+                      variant={flow === "light" ? "default" : "outline"}
+                      className={flow === "light" ? "bg-femme-pink text-femme-burgundy hover:bg-femme-pink/90" : "border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"}
+                      onClick={() => setFlow("light")}
+                    >
+                      Light
+                    </Button>
+                    <Button 
+                      size="sm"
+                      variant={flow === "medium" ? "default" : "outline"}
+                      className={flow === "medium" ? "bg-femme-pink text-femme-burgundy hover:bg-femme-pink/90" : "border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"}
+                      onClick={() => setFlow("medium")}
+                    >
+                      Medium
+                    </Button>
+                    <Button 
+                      size="sm"
+                      variant={flow === "heavy" ? "default" : "outline"}
+                      className={flow === "heavy" ? "bg-femme-pink text-femme-burgundy hover:bg-femme-pink/90" : "border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"}
+                      onClick={() => setFlow("heavy")}
+                    >
+                      Heavy
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-center">
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
