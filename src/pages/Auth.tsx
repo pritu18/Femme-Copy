@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -11,11 +12,11 @@ type AuthView = "login" | "signup" | "forgotPassword";
 
 export default function Auth() {
   const [view, setView] = useState<AuthView>("login");
+  const navigate = useNavigate();
   
   const handleSuccessfulAuth = () => {
-    // After successful authentication, you would normally redirect to the dashboard
-    // For now, let's log a message
-    console.log("Authentication successful! Redirect to dashboard would happen here.");
+    // After successful authentication, redirect to the dashboard
+    navigate("/dashboard");
   };
   
   return (
