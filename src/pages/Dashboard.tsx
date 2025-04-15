@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -25,7 +24,6 @@ export default function Dashboard() {
   const [flow, setFlow] = useState<"light" | "medium" | "heavy">("medium");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Function to check if a date is a period day
   const isPeriodDay = (day: Date | undefined) => {
     if (!day) return false;
     return periodDays.some(periodDay => 
@@ -33,14 +31,12 @@ export default function Dashboard() {
     );
   };
 
-  // Function to get specific period day data
   const getPeriodDay = (day: Date): PeriodDay | undefined => {
     return periodDays.find(periodDay => 
       periodDay.date.toDateString() === day.toDateString()
     );
   };
 
-  // Function to add or update period day
   const handleAddPeriodDay = () => {
     if (!date) return;
     
@@ -49,7 +45,6 @@ export default function Dashboard() {
     );
     
     if (existingDayIndex >= 0) {
-      // Update existing day
       const updatedDays = [...periodDays];
       updatedDays[existingDayIndex] = {
         ...updatedDays[existingDayIndex],
@@ -58,7 +53,6 @@ export default function Dashboard() {
       };
       setPeriodDays(updatedDays);
     } else {
-      // Add new day
       setPeriodDays([...periodDays, { date: date, notes, flow }]);
     }
     
@@ -72,7 +66,6 @@ export default function Dashboard() {
     setIsDialogOpen(false);
   };
 
-  // Function to handle day selection on calendar
   const handleDaySelect = (day: Date | undefined) => {
     if (!day) return;
     
@@ -118,12 +111,7 @@ export default function Dashboard() {
                 mode="single"
                 selected={date}
                 onSelect={handleDaySelect}
-                className="p-6 pointer-events-auto rounded-lg bg-white shadow-lg w-full max-w-[600px] aspect-square" // Increased size and made square
-                classNames={{
-                  caption: "flex justify-center pt-1 relative items-center text-lg",
-                  nav_button: "h-10 w-10", // Larger navigation buttons
-                  day: "h-12 w-12 p-2 font-medium", // Larger day cells
-                }}
+                className="p-3 pointer-events-auto rounded-md bg-white shadow-md w-full max-w-[500px]"
                 modifiers={{
                   periodDay: periodDays.map(d => d.date)
                 }}
@@ -143,7 +131,7 @@ export default function Dashboard() {
                       <div className={`relative h-full w-full flex items-center justify-center ${isPeriod ? 'text-femme-burgundy' : ''}`}>
                         {props.date.getDate()}
                         {isPeriod && (
-                          <div className="absolute -bottom-1 h-1.5 w-1.5 rounded-full bg-femme-burgundy"></div>
+                          <div className="absolute -bottom-1 h-1 w-1 rounded-full bg-femme-burgundy"></div>
                         )}
                       </div>
                     );
