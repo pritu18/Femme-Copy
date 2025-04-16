@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/common/Logo";
-import { ArrowLeft, ShoppingCart, Star, Plus, Minus, Heart, Info } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Star, Plus, Minus, Heart, Info, Cookie, Pizza, IceCream } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -81,6 +81,67 @@ const products: Product[] = [
     category: "Discs",
     rating: 4.4,
     inStock: false
+  },
+  // Period Cravings section
+  {
+    id: "7",
+    name: "Dark Chocolate Bar",
+    description: "Rich dark chocolate with 70% cocoa. Perfect for satisfying chocolate cravings.",
+    price: 199,
+    image: "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?auto=format&fit=crop&w=300&h=300",
+    category: "Cravings",
+    rating: 4.9,
+    inStock: true
+  },
+  {
+    id: "8",
+    name: "Sea Salt Potato Chips",
+    description: "Crunchy potato chips with sea salt. The perfect salty snack for period cravings.",
+    price: 99,
+    image: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=300&h=300",
+    category: "Cravings",
+    rating: 4.6,
+    inStock: true
+  },
+  {
+    id: "9",
+    name: "Cookies & Cream Ice Cream",
+    description: "Premium ice cream with chocolate cookie pieces. A sweet treat for your period.",
+    price: 299,
+    image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=300&h=300",
+    category: "Cravings",
+    rating: 4.7,
+    inStock: true
+  },
+  {
+    id: "10",
+    name: "Cheese Pizza",
+    description: "8-inch cheese pizza ready to heat. Comfort food for your period cravings.",
+    price: 349,
+    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=300&h=300",
+    category: "Cravings",
+    rating: 4.4,
+    inStock: true
+  },
+  {
+    id: "11",
+    name: "Spicy Instant Noodles",
+    description: "Pack of 5 spicy instant noodles. Quick and satisfying snack for period days.",
+    price: 149,
+    image: "https://images.unsplash.com/photo-1612927601601-6638404737ce?auto=format&fit=crop&w=300&h=300",
+    category: "Cravings",
+    rating: 4.2,
+    inStock: true
+  },
+  {
+    id: "12",
+    name: "Caramel Popcorn",
+    description: "Sweet and salty caramel popcorn. Perfect movie snack during your period.",
+    price: 179,
+    image: "https://images.unsplash.com/photo-1578849278619-e73a158e97c7?auto=format&fit=crop&w=300&h=300",
+    category: "Cravings",
+    rating: 4.5,
+    inStock: true
   }
 ];
 
@@ -171,6 +232,16 @@ export default function Store() {
     );
   };
 
+  // Get category icon
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case "Cravings":
+        return <Cookie className="h-4 w-4 mr-1 text-femme-pink" />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-femme-beige to-femme-pink-light">
       <header className="bg-white shadow-md py-4 sticky top-0 z-10">
@@ -225,11 +296,25 @@ export default function Store() {
                 onClick={() => setSelectedCategory(category)}
                 className={selectedCategory === category ? "bg-femme-pink hover:bg-femme-pink/90" : ""}
               >
+                {getCategoryIcon(category)}
                 {category}
               </Button>
             ))}
           </div>
         </div>
+
+        {/* Featured section for cravings */}
+        {(selectedCategory === "Cravings" || selectedCategory === null) && (
+          <div className="mb-8">
+            <div className="flex items-center mb-4">
+              <Cookie className="h-5 w-5 text-femme-burgundy mr-2" />
+              <h2 className="text-xl font-semibold text-femme-burgundy">Period Cravings</h2>
+            </div>
+            <p className="text-femme-burgundy/70 mb-4">
+              Satisfy your period cravings with our selection of comforting snacks and treats. We've got sweet, salty, and everything in between!
+            </p>
+          </div>
+        )}
 
         {/* Products grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -244,6 +329,11 @@ export default function Store() {
                 {!product.inStock && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <span className="text-white font-semibold px-3 py-1 bg-femme-burgundy rounded-full">Out of Stock</span>
+                  </div>
+                )}
+                {product.category === "Cravings" && (
+                  <div className="absolute top-2 left-2">
+                    <Badge className="bg-femme-pink text-white">Cravings</Badge>
                   </div>
                 )}
               </div>
