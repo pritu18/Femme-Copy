@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Plus, CalendarDays, UserRound } from "lucide-react";
+import { CalendarIcon, Plus, CalendarDays, UserRound, ShoppingBag } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -169,7 +169,7 @@ export default function Dashboard() {
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-1">
-            <Card className="shadow-lg border-femme-taupe border-opacity-50">
+            <Card className="shadow-lg border-femme-taupe border-opacity-50 mb-6">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-femme-burgundy text-xl">Period Calendar</CardTitle>
                 <Dialog open={showAddPeriodDialog} onOpenChange={setShowAddPeriodDialog}>
@@ -311,6 +311,27 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
+            
+            <Card className="shadow-lg border-femme-taupe border-opacity-50">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-femme-burgundy text-xl">Store</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-femme-burgundy/70 mb-4">
+                  Shop for menstrual products and essentials in our online store.
+                </p>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"
+                  asChild
+                >
+                  <Link to="/store">
+                    <ShoppingBag className="mr-2 h-4 w-4" />
+                    Visit Store
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </div>
           
           <div className="md:col-span-2">
@@ -381,7 +402,6 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* Mood Dialog */}
       <Dialog open={showMoodDialog} onOpenChange={setShowMoodDialog}>
         <DialogContent>
           <DialogHeader>
