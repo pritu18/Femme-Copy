@@ -421,7 +421,7 @@ export default function Dashboard() {
                     <h3 className="text-femme-burgundy text-lg font-medium mb-3">Quick Log</h3>
                     <p className="text-femme-burgundy/70 text-sm mb-4">Log your period days for the current cycle quickly:</p>
                     
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                       <Button 
                         variant="outline" 
                         className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"
@@ -446,7 +446,9 @@ export default function Dashboard() {
                         Tomorrow
                         <ArrowRight className="h-4 w-4 ml-1" />
                       </Button>
-                      
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2 mt-2">
                       <Button 
                         variant="outline" 
                         className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"
@@ -454,6 +456,17 @@ export default function Dashboard() {
                       >
                         <Plus className="h-4 w-4 mr-1" />
                         Custom
+                      </Button>
+                      
+                      <Button 
+                        className="bg-femme-pink hover:bg-femme-burgundy text-white"
+                        onClick={() => {
+                          resetMoodForm();
+                          setMoodDialogOpen(true);
+                        }}
+                      >
+                        <Smile className="h-4 w-4 mr-2" />
+                        Log Mood
                       </Button>
                     </div>
                   </div>
@@ -780,47 +793,4 @@ export default function Dashboard() {
                     {getAllPeriodDays().slice(-3).reverse().map((day, index) => (
                       <div key={index} className="border-b border-femme-taupe/30 pb-3 last:border-0">
                         <div className="font-medium text-femme-burgundy">{format(day.date, "MMMM d, yyyy")}</div>
-                        <div className="text-sm text-femme-burgundy/70">
-                          Flow: <span className="capitalize">{day.flow}</span>
-                          {day.mood && (
-                            <span className="ml-2">
-                              Mood: <span className="capitalize">{day.mood.emotion}</span> 
-                              <span className="text-xs ml-1">({day.mood.intensity}/5)</span>
-                            </span>
-                          )}
-                        </div>
-                        {(day.notes || day.mood?.notes) && (
-                          <div className="text-sm mt-1 line-clamp-2 text-femme-burgundy/80">
-                            {day.notes || day.mood?.notes}
-                          </div>
-                        )}
-                        {day.mood?.symptoms && day.mood.symptoms.length > 0 && (
-                          <div className="text-xs mt-1 text-femme-pink-dark flex flex-wrap gap-1">
-                            {day.mood.symptoms.slice(0, 3).map((symptom, i) => (
-                              <span key={i} className="bg-femme-pink/10 px-2 py-0.5 rounded-full">
-                                {symptom}
-                              </span>
-                            ))}
-                            {day.mood.symptoms.length > 3 && (
-                              <span className="bg-femme-pink/10 px-2 py-0.5 rounded-full">
-                                +{day.mood.symptoms.length - 3} more
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-femme-burgundy/70 text-center py-4">
-                    No entries yet. Start tracking your period by selecting dates on the calendar.
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
-}
+                        <div className="text
