@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { format, differenceInDays, isSameDay, isWithinInterval } from "date-fns";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,12 +7,13 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Plus, CalendarDays } from "lucide-react";
+import { CalendarIcon, Plus, CalendarDays, UserRound } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 import MoodSelector, { MoodType, getMoodIcon, getMoodLabel } from "@/components/period/MoodSelector";
 import DoctorConsultation from "@/components/doctor/DoctorConsultation";
 
@@ -157,6 +159,12 @@ export default function Dashboard() {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <Logo className="h-10" />
           <div className="flex items-center gap-4">
+            <Button variant="outline" asChild className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">
+              <Link to="/profile">
+                <UserRound className="h-4 w-4 mr-2" />
+                Profile
+              </Link>
+            </Button>
             <Button variant="outline" className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">Sign Out</Button>
           </div>
         </div>
