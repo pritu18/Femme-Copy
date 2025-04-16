@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Logo } from "@/components/common/Logo";
-import { ArrowLeft, Save } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowLeft, Save, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -45,6 +45,7 @@ const defaultValues: Partial<ProfileFormValues> = {
 
 export default function Profile() {
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Initialize the form with react-hook-form
   const form = useForm<ProfileFormValues>({
@@ -84,17 +85,42 @@ export default function Profile() {
     }, 1000);
   }
 
+  // Handle sign out
+  const handleSignOut = () => {
+    // Clear any user data from localStorage if needed
+    // localStorage.removeItem("userProfile"); // Uncomment if you want to clear profile on logout
+
+    // Show toast notification
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out.",
+    });
+
+    // Redirect to auth page
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-femme-beige to-femme-pink-light">
       <header className="bg-white shadow-md py-4">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <Logo className="h-10" />
-          <Button variant="outline" asChild className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">
-            <Link to="/dashboard">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Link>
-          </Button>
+          <div className="flex gap-4">
+            <Button variant="outline" asChild className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">
+              <Link to="/dashboard">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Link>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { format, differenceInDays, isSameDay, isWithinInterval } from "date-fns";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -158,15 +157,12 @@ export default function Dashboard() {
       <header className="bg-white shadow-md py-4">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <Logo className="h-10" />
-          <div className="flex items-center gap-4">
-            <Button variant="outline" asChild className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">
-              <Link to="/profile">
-                <UserRound className="h-4 w-4 mr-2" />
-                Profile
-              </Link>
-            </Button>
-            <Button variant="outline" className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">Sign Out</Button>
-          </div>
+          <Button variant="outline" asChild className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">
+            <Link to="/profile">
+              <UserRound className="h-4 w-4 mr-2" />
+              Profile
+            </Link>
+          </Button>
         </div>
       </header>
 
