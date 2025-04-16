@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { format, addDays, subDays, isWithinInterval, isSameDay } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -5,14 +6,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { toast } from "@/hooks/use-toast";
 
 interface PeriodDay {
   date: Date;
   notes?: string;
-  flow?: "light" | "medium" | "heavy";
 }
 
 interface PeriodCycle {
@@ -27,7 +27,6 @@ export default function Dashboard() {
   const [periodCycles, setPeriodCycles] = useState<PeriodCycle[]>([]);
   const [selectedDay, setSelectedDay] = useState<PeriodDay | null>(null);
   const [notes, setNotes] = useState("");
-  const [flow, setFlow] = useState<"light" | "medium" | "heavy">("medium");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEndDate, setIsEndDate] = useState(false);
   const [activeCycle, setActiveCycle] = useState<PeriodCycle | null>(null);
@@ -77,8 +76,7 @@ export default function Dashboard() {
     
     const dayData: PeriodDay = { 
       date: new Date(date), 
-      notes, 
-      flow 
+      notes
     };
     
     const currentCycle = getCurrentCycle();
@@ -101,8 +99,7 @@ export default function Dashboard() {
       const allDays = getAllPeriodDays();
       const updatedDay = {
         ...allDays[existingDayIndex],
-        notes,
-        flow
+        notes
       };
       
       for (let i = 0; i < periodCycles.length; i++) {
@@ -150,7 +147,6 @@ export default function Dashboard() {
     }
     
     setNotes("");
-    setFlow("medium");
     setIsEndDate(false);
     setIsDialogOpen(false);
   };
@@ -164,11 +160,9 @@ export default function Dashboard() {
     if (periodDay) {
       setSelectedDay(periodDay);
       setNotes(periodDay.notes || "");
-      setFlow(periodDay.flow || "medium");
     } else {
       setSelectedDay(null);
       setNotes("");
-      setFlow("medium");
     }
     
     const currentCycle = getCurrentCycle();
@@ -251,48 +245,12 @@ export default function Dashboard() {
                   }
                 }}
               />
-              
-              <div className="bg-white p-4 rounded-md shadow-md w-full max-w-[275px]">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-femme-burgundy text-lg font-medium mb-3">Flow Intensity Settings</h3>
-                    <p className="text-femme-burgundy/70 text-sm mb-4">Select flow intensity when logging your period:</p>
-                    
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm"
-                        variant={flow === "light" ? "default" : "outline"}
-                        className={flow === "light" ? "bg-femme-pink text-femme-burgundy hover:bg-femme-pink/90" : "border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"}
-                        onClick={() => setFlow("light")}
-                      >
-                        Light
-                      </Button>
-                      <Button 
-                        size="sm"
-                        variant={flow === "medium" ? "default" : "outline"}
-                        className={flow === "medium" ? "bg-femme-pink text-femme-burgundy hover:bg-femme-pink/90" : "border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"}
-                        onClick={() => setFlow("medium")}
-                      >
-                        Medium
-                      </Button>
-                      <Button 
-                        size="sm"
-                        variant={flow === "heavy" ? "default" : "outline"}
-                        className={flow === "heavy" ? "bg-femme-pink text-femme-burgundy hover:bg-femme-pink/90" : "border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"}
-                        onClick={() => setFlow("heavy")}
-                      >
-                        Heavy
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </CardContent>
             <CardFooter className="flex justify-center">
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="bg-femme-pink hover:bg-femme-burgundy text-white">
-                    <Plus className="h-4 w-4 mr-2" /> Add Period Day
+                    Add Period Day
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px] bg-white border-femme-taupe">
@@ -312,33 +270,6 @@ export default function Dashboard() {
                   </DialogHeader>
                   
                   <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium text-femme-burgundy">Flow</h4>
-                      <div className="flex gap-4">
-                        <Button 
-                          variant={flow === "light" ? "default" : "outline"}
-                          className={flow === "light" ? "bg-femme-pink text-femme-burgundy hover:bg-femme-pink/90" : "border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy"}
-                          onClick={() => setFlow("light")}
-                        >
-                          Light
-                        </Button>
-                        <Button 
-                          variant={flow === "medium" ? "default" : "outline"}
-                          className={flow === "medium" ? "bg-femme-pink text-femme-burgundy hover:bg-femme-pink/90" : "border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy"}
-                          onClick={() => setFlow("medium")}
-                        >
-                          Medium
-                        </Button>
-                        <Button 
-                          variant={flow === "heavy" ? "default" : "outline"}
-                          className={flow === "heavy" ? "bg-femme-pink text-femme-burgundy hover:bg-femme-pink/90" : "border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy"}
-                          onClick={() => setFlow("heavy")}
-                        >
-                          Heavy
-                        </Button>
-                      </div>
-                    </div>
-
                     <div className="space-y-2">
                       <h4 className="text-sm font-medium text-femme-burgundy">Notes</h4>
                       <Textarea
@@ -406,9 +337,6 @@ export default function Dashboard() {
                     {getAllPeriodDays().slice(-3).reverse().map((day, index) => (
                       <div key={index} className="border-b border-femme-taupe/30 pb-3 last:border-0">
                         <div className="font-medium text-femme-burgundy">{format(day.date, "MMMM d, yyyy")}</div>
-                        <div className="text-femme-burgundy/70">
-                          {day.flow && <span className="capitalize">{day.flow} flow</span>}
-                        </div>
                         {day.notes && <div className="text-sm text-femme-burgundy/70 mt-1">{day.notes}</div>}
                       </div>
                     ))}
