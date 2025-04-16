@@ -7,16 +7,18 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Plus } from "lucide-react";
+import { CalendarIcon, Plus, CalendarDays } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
+import MoodSelector, { MoodType, getMoodIcon, getMoodLabel } from "@/components/period/MoodSelector";
 
 interface PeriodDay {
   date: Date;
   notes?: string;
+  mood?: MoodType;
 }
 
 interface PeriodCycle {
@@ -32,6 +34,9 @@ export default function Dashboard() {
   const [newEndDate, setNewEndDate] = useState<Date | undefined>(undefined);
   const [newNotes, setNewNotes] = useState("");
   const [showAddPeriodDialog, setShowAddPeriodDialog] = useState(false);
+  const [selectedDayForMood, setSelectedDayForMood] = useState<PeriodDay | null>(null);
+  const [selectedMood, setSelectedMood] = useState<MoodType>(undefined);
+  const [showMoodDialog, setShowMoodDialog] = useState(false);
 
   const getAllPeriodDays = (): PeriodDay[] => {
     return periodCycles.flatMap(cycle => cycle.days);
@@ -101,6 +106,52 @@ export default function Dashboard() {
       }
       return isSameDay(date, cycle.startDate);
     });
+  };
+
+  const getDayFromDate = (date: Date): PeriodDay | undefined => {
+    for (const cycle of periodCycles) {
+      const foundDay = cycle.days.find(day => isSameDay(day.date, date));
+      if (foundDay) return foundDay;
+    }
+    return undefined;
+  };
+
+  const handleDayClick = (date: Date) => {
+    if (!isPeriodDay(date)) return;
+    
+    const day = getDayFromDate(date);
+    if (day) {
+      setSelectedDayForMood(day);
+      setSelectedMood(day.mood);
+      setShowMoodDialog(true);
+    }
+  };
+
+  const saveMoodForDay = () => {
+    if (!selectedDayForMood) return;
+
+    // Create a new array of period cycles with the updated mood
+    const updatedCycles = periodCycles.map(cycle => {
+      const updatedDays = cycle.days.map(day => {
+        if (isSameDay(day.date, selectedDayForMood.date)) {
+          return { ...day, mood: selectedMood };
+        }
+        return day;
+      });
+      return { ...cycle, days: updatedDays };
+    });
+
+    setPeriodCycles(updatedCycles);
+    toast({
+      title: "Mood logged",
+      description: `You're feeling ${getMoodLabel(selectedMood)} on ${format(selectedDayForMood.date, "MMMM d, yyyy")}`,
+    });
+    setShowMoodDialog(false);
+  };
+
+  const getMoodForDay = (date: Date): MoodType => {
+    const day = getDayFromDate(date);
+    return day?.mood;
   };
 
   return (
@@ -211,9 +262,52 @@ export default function Dashboard() {
                   modifiersClassNames={{
                     highlighted: "bg-femme-pink text-white",
                   }}
+                  onDayClick={handleDayClick}
+                  components={{
+                    DayContent: (props) => {
+                      const date = props.date;
+                      const mood = getMoodForDay(date);
+                      
+                      return (
+                        <div className="flex flex-col items-center justify-center">
+                          <div>{props.date.getDate()}</div>
+                          {mood && (
+                            <div className="mt-1">
+                              {getMoodIcon(mood, 14)}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    },
+                  }}
                 />
                 <div className="mt-4 text-sm text-center text-femme-burgundy/70">
-                  Days in red are marked as period days.
+                  Click on highlighted days to log your mood
+                </div>
+                
+                <div className="mt-6">
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"
+                    onClick={() => {
+                      const today = new Date();
+                      const day = getDayFromDate(today);
+                      if (day) {
+                        setSelectedDayForMood(day);
+                        setSelectedMood(day.mood);
+                        setShowMoodDialog(true);
+                      } else {
+                        toast({
+                          title: "No period active",
+                          description: "You don't have an active period for today",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                  >
+                    <CalendarDays className="mr-2 h-4 w-4" />
+                    Log Today's Mood
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -261,7 +355,15 @@ export default function Dashboard() {
                   <div className="space-y-4">
                     {getAllPeriodDays().slice(-3).reverse().map((day, index) => (
                       <div key={index} className="border-b border-femme-taupe/30 pb-3 last:border-0">
-                        <div className="font-medium text-femme-burgundy">{format(day.date, "MMMM d, yyyy")}</div>
+                        <div className="font-medium text-femme-burgundy flex items-center gap-2">
+                          {format(day.date, "MMMM d, yyyy")}
+                          {day.mood && (
+                            <span className="ml-2 flex items-center text-sm">
+                              {getMoodIcon(day.mood)}
+                              <span className="ml-1">{getMoodLabel(day.mood)}</span>
+                            </span>
+                          )}
+                        </div>
                         {day.notes && <div className="text-sm text-femme-burgundy/70 mt-1">{day.notes}</div>}
                       </div>
                     ))}
@@ -276,6 +378,49 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+
+      {/* Mood Dialog */}
+      <Dialog open={showMoodDialog} onOpenChange={setShowMoodDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {selectedDayForMood 
+                ? `How do you feel on ${format(selectedDayForMood.date, "MMMM d, yyyy")}?` 
+                : "Log Your Mood"}
+            </DialogTitle>
+            <DialogDescription>
+              Select the mood that best describes how you're feeling today.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <MoodSelector selectedMood={selectedMood} onMoodSelect={setSelectedMood} />
+            
+            <div className="mt-4">
+              <Label htmlFor="mood-notes">Notes (Optional)</Label>
+              <Textarea 
+                id="mood-notes"
+                placeholder="Add notes about how you're feeling..."
+                value={selectedDayForMood?.notes || ""}
+                onChange={(e) => {
+                  if (selectedDayForMood) {
+                    setSelectedDayForMood({
+                      ...selectedDayForMood,
+                      notes: e.target.value
+                    });
+                  }
+                }}
+                className="mt-2"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowMoodDialog(false)}>Cancel</Button>
+            <Button onClick={saveMoodForDay}>Save Mood</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
