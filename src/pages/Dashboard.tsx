@@ -157,7 +157,6 @@ export default function Dashboard() {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <Logo className="h-10" />
           <div className="flex items-center gap-4">
-            <span className="text-femme-burgundy font-medium">Welcome, Jane</span>
             <Button variant="outline" className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">Sign Out</Button>
           </div>
         </div>
