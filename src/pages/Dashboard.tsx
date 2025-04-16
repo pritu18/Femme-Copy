@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { format, addDays, subDays, isWithinInterval, isSameDay } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -425,7 +424,7 @@ export default function Dashboard() {
                     <div className="grid grid-cols-3 gap-2">
                       <Button 
                         variant="outline" 
-                        className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"
+                        className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light flex items-center justify-center"
                         onClick={() => handleQuickLog(-1)}
                       >
                         <ArrowLeft className="h-4 w-4 mr-1" />
@@ -441,7 +440,7 @@ export default function Dashboard() {
                       
                       <Button 
                         variant="outline" 
-                        className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"
+                        className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light flex items-center justify-center"
                         onClick={() => handleQuickLog(1)}
                       >
                         Tomorrow
@@ -452,7 +451,7 @@ export default function Dashboard() {
                     <div className="grid grid-cols-2 gap-2 mt-2">
                       <Button 
                         variant="outline" 
-                        className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light"
+                        className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light flex items-center justify-center"
                         onClick={() => setIsDialogOpen(true)}
                       >
                         <Plus className="h-4 w-4 mr-1" />
@@ -460,7 +459,7 @@ export default function Dashboard() {
                       </Button>
                       
                       <Button 
-                        className="bg-femme-pink hover:bg-femme-burgundy text-white"
+                        className="bg-femme-pink hover:bg-femme-burgundy text-white flex items-center justify-center"
                         onClick={() => {
                           resetMoodForm();
                           setMoodDialogOpen(true);
