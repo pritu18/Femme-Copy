@@ -192,7 +192,7 @@ const PeriodChatbot = () => {
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">
                   <Bot className="h-5 w-5 text-femme-pink" />
-                  <h3 className="text-lg font-medium text-femme-burgundy">Period Encyclopedia</h3>
+                  <h3 className="text-lg font-medium text-femme-burgundy">Nirmala</h3>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -221,7 +221,7 @@ const PeriodChatbot = () => {
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <Bot className="h-5 w-5 text-femme-pink" />
-                <CardTitle className="text-lg text-femme-burgundy">Period Encyclopedia</CardTitle>
+                <CardTitle className="text-lg text-femme-burgundy">Nirmala</CardTitle>
               </div>
               <Button variant="ghost" size="icon" onClick={toggleChatbot}>
                 <X className="h-4 w-4" />
@@ -251,3 +251,4 @@ const PeriodChatbot = () => {
 };
 
 export default PeriodChatbot;
+
