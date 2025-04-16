@@ -195,14 +195,15 @@ export default function Dashboard() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <Card className="col-span-1 lg:col-span-2 shadow-lg border-femme-taupe border-opacity-50">
+          {/* Calendar Card - Now on the left */}
+          <Card className="col-span-1 shadow-lg border-femme-taupe border-opacity-50">
             <CardHeader>
               <CardTitle className="text-femme-burgundy text-2xl">Track Your Cycle</CardTitle>
               <CardDescription className="text-femme-burgundy/70">
                 Log your period days by selecting dates on the calendar
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col md:flex-row justify-center items-start md:items-center gap-6">
+            <CardContent className="flex flex-col justify-center items-center gap-6">
               <Calendar
                 mode="single"
                 selected={date}
@@ -294,7 +295,8 @@ export default function Dashboard() {
             </CardFooter>
           </Card>
 
-          <div className="col-span-1">
+          {/* Cycle Info and Recent Entries - Now on the right side (2-column span) */}
+          <div className="col-span-1 lg:col-span-2">
             <Card className="shadow-lg border-femme-taupe border-opacity-50 mb-8">
               <CardHeader>
                 <CardTitle className="text-femme-burgundy text-xl">Current Cycle</CardTitle>
