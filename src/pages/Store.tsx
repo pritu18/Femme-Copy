@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,13 +19,13 @@ interface Product {
   inStock: boolean;
 }
 
-// Sample product data
+// Sample product data with prices in Indian Rupees
 const products: Product[] = [
   {
     id: "1",
     name: "Organic Cotton Pads",
     description: "Pack of 10 organic cotton pads with wings. Eco-friendly and biodegradable.",
-    price: 5.99,
+    price: 249,
     image: "https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=300&h=300",
     category: "Pads",
     rating: 4.5,
@@ -36,7 +35,7 @@ const products: Product[] = [
     id: "2",
     name: "Reusable Menstrual Cup",
     description: "Medical-grade silicone cup. Eco-friendly alternative lasting up to 10 years.",
-    price: 24.99,
+    price: 999,
     image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=300&h=300",
     category: "Cups",
     rating: 4.8,
@@ -46,7 +45,7 @@ const products: Product[] = [
     id: "3",
     name: "Period Panties",
     description: "Absorbent underwear that can replace pads and tampons. Machine washable.",
-    price: 19.99,
+    price: 799,
     image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?auto=format&fit=crop&w=300&h=300",
     category: "Underwear",
     rating: 4.7,
@@ -56,7 +55,7 @@ const products: Product[] = [
     id: "4",
     name: "Organic Tampons",
     description: "Pack of 16 organic cotton tampons. No chemicals or synthetic materials.",
-    price: 6.49,
+    price: 299,
     image: "https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=300&h=300",
     category: "Tampons",
     rating: 4.3,
@@ -66,7 +65,7 @@ const products: Product[] = [
     id: "5",
     name: "Heating Pad",
     description: "Electric heating pad to relieve menstrual cramps. Multiple heat settings.",
-    price: 29.99,
+    price: 1499,
     image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=300&h=300",
     category: "Pain Relief",
     rating: 4.6,
@@ -76,7 +75,7 @@ const products: Product[] = [
     id: "6",
     name: "Menstrual Disc",
     description: "Flexible disc that sits at the base of the cervix. Can be worn during intercourse.",
-    price: 27.99,
+    price: 1199,
     image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?auto=format&fit=crop&w=300&h=300",
     category: "Discs",
     rating: 4.4,
@@ -260,7 +259,7 @@ export default function Store() {
                 <p className="text-sm text-femme-burgundy/70 line-clamp-2">{product.description}</p>
               </CardContent>
               <CardFooter className="flex justify-between items-center pt-2">
-                <div className="font-semibold text-femme-burgundy">${product.price.toFixed(2)}</div>
+                <div className="font-semibold text-femme-burgundy">₹{product.price}</div>
                 <Button 
                   className="bg-femme-pink hover:bg-femme-pink/90" 
                   size="sm"
@@ -310,7 +309,7 @@ export default function Store() {
                         </div>
                         <div className="flex-grow">
                           <h3 className="text-sm font-medium text-femme-burgundy">{item.product.name}</h3>
-                          <p className="text-sm text-femme-burgundy/70">${item.product.price.toFixed(2)}</p>
+                          <p className="text-sm text-femme-burgundy/70">₹{item.product.price}</p>
                         </div>
                         <div className="flex items-center">
                           <Button 
@@ -338,15 +337,15 @@ export default function Store() {
                   <div className="border-t border-femme-taupe/20 pt-4">
                     <div className="flex justify-between mb-2">
                       <span className="text-femme-burgundy/70">Subtotal</span>
-                      <span className="text-femme-burgundy">${totalPrice.toFixed(2)}</span>
+                      <span className="text-femme-burgundy">₹{totalPrice}</span>
                     </div>
                     <div className="flex justify-between mb-4">
                       <span className="text-femme-burgundy/70">Shipping</span>
-                      <span className="text-femme-burgundy">$5.00</span>
+                      <span className="text-femme-burgundy">₹99</span>
                     </div>
                     <div className="flex justify-between text-lg font-semibold mb-6">
                       <span className="text-femme-burgundy">Total</span>
-                      <span className="text-femme-burgundy">${(totalPrice + 5).toFixed(2)}</span>
+                      <span className="text-femme-burgundy">₹{(totalPrice + 99)}</span>
                     </div>
                     <Button 
                       className="w-full bg-femme-pink hover:bg-femme-pink/90 mb-2"
