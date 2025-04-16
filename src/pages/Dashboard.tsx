@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { format, addDays, subDays, isWithinInterval, isSameDay } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -770,8 +771,7 @@ export default function Dashboard() {
                     <div className="flex items-center gap-2 text-femme-burgundy/70">
                       <CalendarIcon className="h-5 w-5 text-femme-pink" />
                       <span>Days: {getCurrentCycle()?.endDate 
-                        ? Math.floor((getCurrentCycle()!.endDate!.getTime() - getCurrentCycle()!.startDate.getTime()) / (1000 * 60 *
-                      60 * 24)) + 1
+                        ? Math.floor((getCurrentCycle()!.endDate!.getTime() - getCurrentCycle()!.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
                         : getCurrentCycle()?.days.length || 1}</span>
                     </div>
                   </div>
@@ -793,4 +793,24 @@ export default function Dashboard() {
                     {getAllPeriodDays().slice(-3).reverse().map((day, index) => (
                       <div key={index} className="border-b border-femme-taupe/30 pb-3 last:border-0">
                         <div className="font-medium text-femme-burgundy">{format(day.date, "MMMM d, yyyy")}</div>
-                        <div className="text
+                        <div className="text-femme-burgundy/70">
+                          {day.flow && <span className="capitalize">{day.flow} flow</span>}
+                          {day.mood && <span className="ml-2">• Feeling: {day.mood.emotion}</span>}
+                        </div>
+                        {day.notes && <div className="text-sm text-femme-burgundy/70 mt-1">{day.notes}</div>}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-femme-burgundy/70 text-center py-4">
+                    No entries yet. Start tracking your period by selecting dates on the calendar.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
