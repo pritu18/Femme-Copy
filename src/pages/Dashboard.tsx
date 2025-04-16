@@ -793,4 +793,20 @@ export default function Dashboard() {
                     {getAllPeriodDays().slice(-3).reverse().map((day, index) => (
                       <div key={index} className="border-b border-femme-taupe/30 pb-3 last:border-0">
                         <div className="font-medium text-femme-burgundy">{format(day.date, "MMMM d, yyyy")}</div>
-                        <div className="text
+                        <div className="text" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-femme-burgundy/70 text-center py-4">
+                    No recent entries.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
