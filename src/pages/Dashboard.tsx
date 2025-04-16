@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { format, differenceInDays, isSameDay, isWithinInterval } from "date-fns";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import MoodSelector, { MoodType, getMoodIcon, getMoodLabel } from "@/components/period/MoodSelector";
+import DoctorConsultation from "@/components/doctor/DoctorConsultation";
 
 interface PeriodDay {
   date: Date;
@@ -67,7 +67,6 @@ export default function Dashboard() {
 
     const days: PeriodDay[] = [];
     
-    // Add days between start and end date (or just the start date if no end date)
     if (newEndDate) {
       const dayCount = differenceInDays(newEndDate, newStartDate) + 1;
       for (let i = 0; i < dayCount; i++) {
@@ -92,7 +91,6 @@ export default function Dashboard() {
       description: "Your period has been successfully tracked",
     });
 
-    // Reset the form
     setNewStartDate(undefined);
     setNewEndDate(undefined);
     setNewNotes("");
@@ -130,7 +128,6 @@ export default function Dashboard() {
   const saveMoodForDay = () => {
     if (!selectedDayForMood) return;
 
-    // Create a new array of period cycles with the updated mood
     const updatedCycles = periodCycles.map(cycle => {
       const updatedDays = cycle.days.map(day => {
         if (isSameDay(day.date, selectedDayForMood.date)) {
@@ -346,7 +343,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
             
-            <Card className="shadow-lg border-femme-taupe border-opacity-50">
+            <Card className="shadow-lg border-femme-taupe border-opacity-50 mb-8">
               <CardHeader>
                 <CardTitle className="text-femme-burgundy text-xl">Recent Entries</CardTitle>
               </CardHeader>
@@ -375,6 +372,8 @@ export default function Dashboard() {
                 )}
               </CardContent>
             </Card>
+            
+            <DoctorConsultation />
           </div>
         </div>
       </main>
