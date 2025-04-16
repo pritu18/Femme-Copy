@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,7 @@ const products: Product[] = [
     name: "Organic Cotton Pads",
     description: "Pack of 10 organic cotton pads with wings. Eco-friendly and biodegradable.",
     price: 249,
-    image: "https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=300&h=300",
+    image: "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?auto=format&fit=crop&w=300&h=300",
     category: "Pads",
     rating: 4.5,
     inStock: true
@@ -36,7 +37,7 @@ const products: Product[] = [
     name: "Reusable Menstrual Cup",
     description: "Medical-grade silicone cup. Eco-friendly alternative lasting up to 10 years.",
     price: 999,
-    image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=300&h=300",
+    image: "https://images.unsplash.com/photo-1620553967329-53063e0f7dba?auto=format&fit=crop&w=300&h=300",
     category: "Cups",
     rating: 4.8,
     inStock: true
@@ -46,7 +47,7 @@ const products: Product[] = [
     name: "Period Panties",
     description: "Absorbent underwear that can replace pads and tampons. Machine washable.",
     price: 799,
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?auto=format&fit=crop&w=300&h=300",
+    image: "https://images.unsplash.com/photo-1651151856697-1539952ace4f?auto=format&fit=crop&w=300&h=300",
     category: "Underwear",
     rating: 4.7,
     inStock: true
@@ -56,7 +57,7 @@ const products: Product[] = [
     name: "Organic Tampons",
     description: "Pack of 16 organic cotton tampons. No chemicals or synthetic materials.",
     price: 299,
-    image: "https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=300&h=300",
+    image: "https://images.unsplash.com/photo-1628624598821-b1e75af0f152?auto=format&fit=crop&w=300&h=300",
     category: "Tampons",
     rating: 4.3,
     inStock: true
@@ -66,7 +67,7 @@ const products: Product[] = [
     name: "Heating Pad",
     description: "Electric heating pad to relieve menstrual cramps. Multiple heat settings.",
     price: 1499,
-    image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=300&h=300",
+    image: "https://images.unsplash.com/photo-1584155828260-3f115bb741a8?auto=format&fit=crop&w=300&h=300",
     category: "Pain Relief",
     rating: 4.6,
     inStock: true
@@ -76,7 +77,7 @@ const products: Product[] = [
     name: "Menstrual Disc",
     description: "Flexible disc that sits at the base of the cervix. Can be worn during intercourse.",
     price: 1199,
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?auto=format&fit=crop&w=300&h=300",
+    image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=300&h=300",
     category: "Discs",
     rating: 4.4,
     inStock: false
