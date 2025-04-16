@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Calendar as CalendarIcon, ArrowLeft, ArrowRight } from "lucide-react";
+import { Plus, Calendar as CalendarIcon } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { toast } from "@/hooks/use-toast";
 
@@ -182,56 +182,6 @@ export default function Dashboard() {
     setIsDialogOpen(true);
   };
 
-  const handleQuickLog = (daysOffset: number) => {
-    if (!date) return;
-    
-    const targetDate = daysOffset === 0 ? new Date() : 
-                     daysOffset > 0 ? addDays(new Date(), daysOffset) : 
-                     subDays(new Date(), Math.abs(daysOffset));
-    
-    const currentCycle = getCurrentCycle();
-    const dayData: PeriodDay = { 
-      date: new Date(targetDate), 
-      flow 
-    };
-    
-    if (currentCycle && !currentCycle.endDate) {
-      const updatedCycles = [...periodCycles];
-      const currentCycleIndex = updatedCycles.indexOf(currentCycle);
-      
-      const existingDayIndex = currentCycle.days.findIndex(
-        day => day.date.toDateString() === targetDate.toDateString()
-      );
-      
-      if (existingDayIndex >= 0) {
-        updatedCycles[currentCycleIndex].days[existingDayIndex] = {
-          ...updatedCycles[currentCycleIndex].days[existingDayIndex],
-          flow
-        };
-      } else {
-        updatedCycles[currentCycleIndex] = {
-          ...currentCycle,
-          days: [...currentCycle.days, dayData]
-        };
-      }
-      
-      setPeriodCycles(updatedCycles);
-    } else {
-      setPeriodCycles([
-        ...periodCycles, 
-        { 
-          startDate: new Date(targetDate), 
-          days: [dayData] 
-        }
-      ]);
-    }
-    
-    toast({
-      title: "Period day logged",
-      description: `Quick logged ${format(targetDate, "MMMM d, yyyy")} with ${flow} flow.`,
-    });
-  };
-
   const commonSymptoms = [
     "Cramps", "Bloating", "Headache", "Backache", "Breast tenderness", 
     "Nausea", "Fatigue", "Insomnia", "Food cravings", "Mood swings"
@@ -258,7 +208,7 @@ export default function Dashboard() {
                 Log your period days by selecting dates on the calendar
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col md:flex-row justify-start items-start md:items-center gap-6">
+            <CardContent className="flex flex-col md:flex-row justify-center items-start md:items-center gap-6">
               <Calendar
                 mode="single"
                 selected={date}
@@ -305,50 +255,9 @@ export default function Dashboard() {
               <div className="bg-white p-4 rounded-md shadow-md w-full max-w-[275px]">
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-femme-burgundy text-lg font-medium mb-3">Quick Log</h3>
-                    <p className="text-femme-burgundy/70 text-sm mb-4">Log your period days for the current cycle quickly:</p>
+                    <h3 className="text-femme-burgundy text-lg font-medium mb-3">Flow Intensity Settings</h3>
+                    <p className="text-femme-burgundy/70 text-sm mb-4">Select flow intensity when logging your period:</p>
                     
-                    <div className="grid grid-cols-3 gap-2">
-                      <Button 
-                        variant="outline" 
-                        className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light flex items-center justify-center w-full px-2 py-2"
-                        onClick={() => handleQuickLog(-1)}
-                      >
-                        <ArrowLeft className="h-4 w-4 mr-1" />
-                        Yesterday
-                      </Button>
-                      
-                      <Button 
-                        className="bg-femme-pink hover:bg-femme-burgundy text-white"
-                        onClick={() => handleQuickLog(0)}
-                      >
-                        Today
-                      </Button>
-                      
-                      <Button 
-                        variant="outline" 
-                        className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light flex items-center justify-center w-full px-2 py-2"
-                        onClick={() => handleQuickLog(1)}
-                      >
-                        Tomorrow
-                        <ArrowRight className="h-4 w-4 ml-1" />
-                      </Button>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 gap-2 mt-2">
-                      <Button 
-                        variant="outline" 
-                        className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light flex items-center justify-center"
-                        onClick={() => setIsDialogOpen(true)}
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Custom
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4">
-                    <p className="text-femme-burgundy/70 text-sm mb-2">Flow intensity for quick logging:</p>
                     <div className="flex gap-2">
                       <Button 
                         size="sm"
