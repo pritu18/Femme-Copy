@@ -311,7 +311,7 @@ export default function Dashboard() {
                     <div className="grid grid-cols-3 gap-2">
                       <Button 
                         variant="outline" 
-                        className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light flex items-center justify-center"
+                        className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light flex items-center justify-center w-full px-2 py-2"
                         onClick={() => handleQuickLog(-1)}
                       >
                         <ArrowLeft className="h-4 w-4 mr-1" />
@@ -327,7 +327,7 @@ export default function Dashboard() {
                       
                       <Button 
                         variant="outline" 
-                        className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light flex items-center justify-center"
+                        className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light flex items-center justify-center w-full px-2 py-2"
                         onClick={() => handleQuickLog(1)}
                       >
                         Tomorrow
