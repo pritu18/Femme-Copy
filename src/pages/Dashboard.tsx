@@ -4,12 +4,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Calendar as CalendarIcon, ArrowLeft, ArrowRight, Smile } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, ArrowLeft, ArrowRight } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { toast } from "@/hooks/use-toast";
 
@@ -17,12 +13,6 @@ interface PeriodDay {
   date: Date;
   notes?: string;
   flow?: "light" | "medium" | "heavy";
-  mood?: {
-    emotion: "happy" | "neutral" | "sad" | "angry" | "anxious" | "tired";
-    intensity: 1 | 2 | 3 | 4 | 5;
-    symptoms?: string[];
-    notes?: string;
-  };
 }
 
 interface PeriodCycle {
@@ -41,12 +31,6 @@ export default function Dashboard() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEndDate, setIsEndDate] = useState(false);
   const [activeCycle, setActiveCycle] = useState<PeriodCycle | null>(null);
-  
-  const [moodDialogOpen, setMoodDialogOpen] = useState(false);
-  const [selectedEmotion, setSelectedEmotion] = useState<"happy" | "neutral" | "sad" | "angry" | "anxious" | "tired">("neutral");
-  const [emotionIntensity, setEmotionIntensity] = useState<1 | 2 | 3 | 4 | 5>(3);
-  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
-  const [moodNotes, setMoodNotes] = useState("");
 
   const getAllPeriodDays = (): PeriodDay[] => {
     return periodCycles.flatMap(cycle => cycle.days);
@@ -248,99 +232,6 @@ export default function Dashboard() {
     });
   };
 
-  const handleMoodLog = () => {
-    if (!date) return;
-    
-    const dateString = date.toDateString();
-    const existingDayIndex = getAllPeriodDays().findIndex(
-      day => day.date.toDateString() === dateString
-    );
-    
-    const mood = {
-      emotion: selectedEmotion,
-      intensity: emotionIntensity,
-      symptoms: selectedSymptoms,
-      notes: moodNotes
-    };
-    
-    if (existingDayIndex >= 0) {
-      const allDays = getAllPeriodDays();
-      const updatedDay = {
-        ...allDays[existingDayIndex],
-        mood
-      };
-      
-      for (let i = 0; i < periodCycles.length; i++) {
-        const dayIndex = periodCycles[i].days.findIndex(
-          day => day.date.toDateString() === dateString
-        );
-        
-        if (dayIndex >= 0) {
-          const updatedCycles = [...periodCycles];
-          updatedCycles[i].days[dayIndex] = updatedDay;
-          setPeriodCycles(updatedCycles);
-          break;
-        }
-      }
-      
-      toast({
-        title: "Mood logged",
-        description: `Mood data for ${format(date, "MMMM d, yyyy")} has been updated.`,
-      });
-    } else {
-      const dayData: PeriodDay = { 
-        date: new Date(date), 
-        flow,
-        mood 
-      };
-      
-      const currentCycle = getCurrentCycle();
-      
-      if (currentCycle && !currentCycle.endDate) {
-        const updatedCycles = [...periodCycles];
-        const currentCycleIndex = updatedCycles.indexOf(currentCycle);
-        
-        updatedCycles[currentCycleIndex] = {
-          ...currentCycle,
-          days: [...currentCycle.days, dayData]
-        };
-        
-        setPeriodCycles(updatedCycles);
-      } else {
-        setPeriodCycles([
-          ...periodCycles, 
-          { 
-            startDate: new Date(date), 
-            days: [dayData] 
-          }
-        ]);
-      }
-      
-      toast({
-        title: "Mood logged",
-        description: `Mood data for ${format(date, "MMMM d, yyyy")} has been saved.`,
-      });
-    }
-    
-    setMoodDialogOpen(false);
-    resetMoodForm();
-  };
-
-  const resetMoodForm = () => {
-    setSelectedEmotion("neutral");
-    setEmotionIntensity(3);
-    setSelectedSymptoms([]);
-    setMoodNotes("");
-  };
-
-  const toggleSymptom = (symptom: string) => {
-    if (selectedSymptoms.includes(symptom)) {
-      setSelectedSymptoms(selectedSymptoms.filter(s => s !== symptom));
-    } else {
-      setSelectedSymptoms([...selectedSymptoms, symptom]);
-    }
-  };
-
   const commonSymptoms = [
     "Cramps", "Bloating", "Headache", "Backache", "Breast tenderness", 
     "Nausea", "Fatigue", "Insomnia", "Food cravings", "Mood swings"
@@ -364,7 +255,7 @@ export default function Dashboard() {
             <CardHeader>
               <CardTitle className="text-femme-burgundy text-2xl">Track Your Cycle</CardTitle>
               <CardDescription className="text-femme-burgundy/70">
-                Log your period days and moods by selecting dates on the calendar
+                Log your period days by selecting dates on the calendar
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col md:flex-row justify-start items-start md:items-center gap-6">
@@ -398,16 +289,12 @@ export default function Dashboard() {
                   DayContent: (props) => {
                     const day = props.date;
                     const isPeriod = isPeriodDay(day);
-                    const periodDay = getPeriodDay(day);
                     
                     return (
                       <div className={`relative h-full w-full flex items-center justify-center ${isPeriod ? 'text-femme-burgundy' : ''}`}>
                         {props.date.getDate()}
                         {isPeriod && (
                           <div className="absolute -bottom-1 h-1 w-1 rounded-full bg-femme-burgundy"></div>
-                        )}
-                        {periodDay?.mood && (
-                          <div className="absolute -top-1 right-0 h-2 w-2 rounded-full bg-femme-pink"></div>
                         )}
                       </div>
                     );
@@ -448,7 +335,7 @@ export default function Dashboard() {
                       </Button>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-2 mt-2">
+                    <div className="grid grid-cols-1 gap-2 mt-2">
                       <Button 
                         variant="outline" 
                         className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light flex items-center justify-center"
@@ -457,34 +344,7 @@ export default function Dashboard() {
                         <Plus className="h-4 w-4 mr-1" />
                         Custom
                       </Button>
-                      
-                      <Button 
-                        className="bg-femme-pink hover:bg-femme-burgundy text-white flex items-center justify-center"
-                        onClick={() => {
-                          resetMoodForm();
-                          setMoodDialogOpen(true);
-                        }}
-                      >
-                        <Smile className="h-4 w-4 mr-2" />
-                        Log Mood
-                      </Button>
                     </div>
-                  </div>
-                  
-                  <div className="pt-2 border-t border-femme-taupe/20">
-                    <h3 className="text-femme-burgundy text-lg font-medium mb-3">Mood Log</h3>
-                    <p className="text-femme-burgundy/70 text-sm mb-4">Track how you're feeling and symptoms:</p>
-                    
-                    <Button 
-                      className="w-full bg-femme-pink hover:bg-femme-burgundy text-white"
-                      onClick={() => {
-                        resetMoodForm();
-                        setMoodDialogOpen(true);
-                      }}
-                    >
-                      <Smile className="h-4 w-4 mr-2" />
-                      Log Your Mood
-                    </Button>
                   </div>
                   
                   <div className="mt-4">
@@ -591,161 +451,6 @@ export default function Dashboard() {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-              
-              <Dialog open={moodDialogOpen} onOpenChange={setMoodDialogOpen}>
-                <DialogContent className="sm:max-w-[500px] bg-white border-femme-taupe">
-                  <DialogHeader>
-                    <DialogTitle className="text-femme-burgundy">
-                      How are you feeling?
-                    </DialogTitle>
-                    <DialogDescription className="text-femme-burgundy/70">
-                      {date && format(date, "MMMM d, yyyy")}
-                    </DialogDescription>
-                  </DialogHeader>
-                  
-                  <div className="space-y-6 py-4">
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-femme-burgundy">Emotion</h4>
-                      <RadioGroup 
-                        className="grid grid-cols-3 gap-3" 
-                        value={selectedEmotion}
-                        onValueChange={(value) => setSelectedEmotion(value as any)}
-                      >
-                        <div className="flex flex-col items-center gap-1">
-                          <Label 
-                            htmlFor="happy" 
-                            className={`text-center p-3 rounded-md cursor-pointer flex flex-col items-center ${selectedEmotion === 'happy' ? 'bg-femme-pink/20' : 'hover:bg-femme-pink/10'}`}
-                          >
-                            <span role="img" aria-label="happy" className="text-2xl">😊</span>
-                            <span className="mt-1 text-sm">Happy</span>
-                            <RadioGroupItem value="happy" id="happy" className="sr-only" />
-                          </Label>
-                        </div>
-                        
-                        <div className="flex flex-col items-center gap-1">
-                          <Label 
-                            htmlFor="neutral" 
-                            className={`text-center p-3 rounded-md cursor-pointer flex flex-col items-center ${selectedEmotion === 'neutral' ? 'bg-femme-pink/20' : 'hover:bg-femme-pink/10'}`}
-                          >
-                            <span role="img" aria-label="neutral" className="text-2xl">😐</span>
-                            <span className="mt-1 text-sm">Neutral</span>
-                            <RadioGroupItem value="neutral" id="neutral" className="sr-only" />
-                          </Label>
-                        </div>
-                        
-                        <div className="flex flex-col items-center gap-1">
-                          <Label 
-                            htmlFor="sad" 
-                            className={`text-center p-3 rounded-md cursor-pointer flex flex-col items-center ${selectedEmotion === 'sad' ? 'bg-femme-pink/20' : 'hover:bg-femme-pink/10'}`}
-                          >
-                            <span role="img" aria-label="sad" className="text-2xl">😔</span>
-                            <span className="mt-1 text-sm">Sad</span>
-                            <RadioGroupItem value="sad" id="sad" className="sr-only" />
-                          </Label>
-                        </div>
-                        
-                        <div className="flex flex-col items-center gap-1">
-                          <Label 
-                            htmlFor="angry" 
-                            className={`text-center p-3 rounded-md cursor-pointer flex flex-col items-center ${selectedEmotion === 'angry' ? 'bg-femme-pink/20' : 'hover:bg-femme-pink/10'}`}
-                          >
-                            <span role="img" aria-label="angry" className="text-2xl">😠</span>
-                            <span className="mt-1 text-sm">Angry</span>
-                            <RadioGroupItem value="angry" id="angry" className="sr-only" />
-                          </Label>
-                        </div>
-                        
-                        <div className="flex flex-col items-center gap-1">
-                          <Label 
-                            htmlFor="anxious" 
-                            className={`text-center p-3 rounded-md cursor-pointer flex flex-col items-center ${selectedEmotion === 'anxious' ? 'bg-femme-pink/20' : 'hover:bg-femme-pink/10'}`}
-                          >
-                            <span role="img" aria-label="anxious" className="text-2xl">😰</span>
-                            <span className="mt-1 text-sm">Anxious</span>
-                            <RadioGroupItem value="anxious" id="anxious" className="sr-only" />
-                          </Label>
-                        </div>
-                        
-                        <div className="flex flex-col items-center gap-1">
-                          <Label 
-                            htmlFor="tired" 
-                            className={`text-center p-3 rounded-md cursor-pointer flex flex-col items-center ${selectedEmotion === 'tired' ? 'bg-femme-pink/20' : 'hover:bg-femme-pink/10'}`}
-                          >
-                            <span role="img" aria-label="tired" className="text-2xl">😴</span>
-                            <span className="mt-1 text-sm">Tired</span>
-                            <RadioGroupItem value="tired" id="tired" className="sr-only" />
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-femme-burgundy">Intensity (1-5)</h4>
-                      <div className="flex justify-between">
-                        <span className="text-xs text-femme-burgundy/70">Mild</span>
-                        <span className="text-xs text-femme-burgundy/70">Strong</span>
-                      </div>
-                      <div className="flex justify-between gap-2">
-                        {[1, 2, 3, 4, 5].map((level) => (
-                          <Button
-                            key={level}
-                            type="button"
-                            size="sm"
-                            className={`h-10 w-10 ${
-                              emotionIntensity === level
-                                ? "bg-femme-pink text-femme-burgundy"
-                                : "bg-white border border-femme-pink/30 text-femme-burgundy/70 hover:bg-femme-pink/10"
-                            }`}
-                            onClick={() => setEmotionIntensity(level as 1 | 2 | 3 | 4 | 5)}
-                          >
-                            {level}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-femme-burgundy">Symptoms</h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        {commonSymptoms.map((symptom) => (
-                          <Button
-                            key={symptom}
-                            type="button"
-                            variant="outline"
-                            className={`justify-start h-auto py-2 px-3 ${
-                              selectedSymptoms.includes(symptom)
-                                ? "bg-femme-pink/20 border-femme-pink"
-                                : "border-femme-pink/30 hover:bg-femme-pink/10"
-                            }`}
-                            onClick={() => toggleSymptom(symptom)}
-                          >
-                            {symptom}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium text-femme-burgundy">Notes</h4>
-                      <Textarea
-                        value={moodNotes}
-                        onChange={(e) => setMoodNotes(e.target.value)}
-                        placeholder="How are you feeling today? Any specific triggers?"
-                        className="min-h-[80px] border-femme-taupe/50 focus:border-femme-pink focus:ring-femme-pink"
-                      />
-                    </div>
-                  </div>
-
-                  <DialogFooter>
-                    <Button 
-                      className="bg-femme-pink hover:bg-femme-burgundy text-white"
-                      onClick={handleMoodLog}
-                    >
-                      Save Mood
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
             </CardFooter>
           </Card>
 
@@ -794,7 +499,6 @@ export default function Dashboard() {
                         <div className="font-medium text-femme-burgundy">{format(day.date, "MMMM d, yyyy")}</div>
                         <div className="text-femme-burgundy/70">
                           {day.flow && <span className="capitalize">{day.flow} flow</span>}
-                          {day.mood && <span className="ml-2">• Feeling: {day.mood.emotion}</span>}
                         </div>
                         {day.notes && <div className="text-sm text-femme-burgundy/70 mt-1">{day.notes}</div>}
                       </div>
