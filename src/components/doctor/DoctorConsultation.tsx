@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { CalendarIcon, Clock, MapPin, Phone, User } from "lucide-react";
+import DoctorMap from "@/components/doctor/DoctorMap";
 
 interface Doctor {
   id: string;
@@ -19,16 +19,21 @@ interface Doctor {
   specialty: string;
   location: string;
   distance: string;
+  lat: number;
+  lng: number;
   availableDates: Date[];
 }
 
-const mockDoctors: Doctor[] = [
+// NOTE: Add latitude and longitude to mockDoctors for mapping:
+const mockDoctors = [
   {
     id: "1",
     name: "Dr. Sarah Johnson",
     specialty: "OB/GYN",
     location: "Women's Health Clinic, 123 Main St",
     distance: "0.8 miles",
+    lat: 37.773972, // Example - update with real values as needed
+    lng: -122.431297,
     availableDates: [
       new Date(new Date().setDate(new Date().getDate() + 1)),
       new Date(new Date().setDate(new Date().getDate() + 2)),
@@ -41,6 +46,8 @@ const mockDoctors: Doctor[] = [
     specialty: "Gynecologist",
     location: "City Medical Center, 456 Oak Ave",
     distance: "1.2 miles",
+    lat: 37.780293,
+    lng: -122.408231,
     availableDates: [
       new Date(new Date().setDate(new Date().getDate() + 2)),
       new Date(new Date().setDate(new Date().getDate() + 4)),
@@ -52,12 +59,17 @@ const mockDoctors: Doctor[] = [
     specialty: "OB/GYN",
     location: "Family Care Clinic, 789 Elm St",
     distance: "1.5 miles",
+    lat: 37.768967,
+    lng: -122.411935,
     availableDates: [
       new Date(new Date().setDate(new Date().getDate() + 1)),
       new Date(new Date().setDate(new Date().getDate() + 5)),
     ],
   },
 ];
+
+// Add this at the top or via .env/secret (will prompt user for a key)
+const GOOGLE_MAPS_API_KEY = ""; // TODO: Add your API key here
 
 const timeSlots = [
   "9:00 AM",
@@ -109,6 +121,15 @@ const DoctorConsultation: React.FC = () => {
         <CardTitle className="text-femme-burgundy text-xl">Find a Gynecologist Near You</CardTitle>
       </CardHeader>
       <CardContent>
+        {/* Google Map showing doctor locations */}
+        {GOOGLE_MAPS_API_KEY ? (
+          <DoctorMap doctors={mockDoctors} apiKey={GOOGLE_MAPS_API_KEY} />
+        ) : (
+          <div className="bg-femme-pink-light text-femme-burgundy p-4 mb-4 rounded">
+            Google Maps integration requires an API key. Please set your Google Maps API key!
+          </div>
+        )}
+
         <div className="space-y-4">
           {mockDoctors.map((doctor) => (
             <div
