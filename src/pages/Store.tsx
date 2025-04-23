@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,6 @@ import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
-// Define types for products
 interface Product {
   id: string;
   name: string;
@@ -20,7 +18,6 @@ interface Product {
   inStock: boolean;
 }
 
-// Sample product data with prices in Indian Rupees
 const products: Product[] = [
   {
     id: "1",
@@ -82,7 +79,6 @@ const products: Product[] = [
     rating: 4.4,
     inStock: false
   },
-  // Period Cravings section
   {
     id: "7",
     name: "Dark Chocolate Bar",
@@ -145,10 +141,27 @@ const products: Product[] = [
   }
 ];
 
-// Cart interface
 interface CartItem {
   product: Product;
   quantity: number;
+}
+
+const RAZORPAY_KEY_ID = "";
+
+function loadRazorpayScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (document.getElementById("razorpay-script")) {
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.id = "razorpay-script";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = (e) => reject(e);
+    document.body.appendChild(script);
+  });
 }
 
 export default function Store() {
@@ -156,15 +169,12 @@ export default function Store() {
   const [showCart, setShowCart] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Get all unique categories
   const categories = Array.from(new Set(products.map(product => product.category)));
 
-  // Filter products by category if selected
   const filteredProducts = selectedCategory 
     ? products.filter(product => product.category === selectedCategory)
     : products;
 
-  // Add product to cart
   const addToCart = (product: Product) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(item => item.product.id === product.id);
@@ -184,7 +194,6 @@ export default function Store() {
     });
   };
 
-  // Remove product from cart
   const removeFromCart = (productId: string) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(item => item.product.id === productId);
@@ -200,13 +209,11 @@ export default function Store() {
     });
   };
 
-  // Calculate total price
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.product.price * item.quantity, 
     0
   );
 
-  // Rating Stars component
   const RatingStars = ({ rating }: { rating: number }) => {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
@@ -232,7 +239,6 @@ export default function Store() {
     );
   };
 
-  // Get category icon
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "Cravings":
@@ -240,6 +246,57 @@ export default function Store() {
       default:
         return null;
     }
+  };
+
+  const handleRazorpayPayment = async () => {
+    if (!RAZORPAY_KEY_ID) {
+      toast({
+        title: "Razorpay Key Required",
+        description: "Please set your Razorpay Key ID for payments to work.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const amountInPaise = (totalPrice + 99) * 100;
+    await loadRazorpayScript();
+
+    const options = {
+      key: RAZORPAY_KEY_ID,
+      amount: amountInPaise,
+      currency: "INR",
+      name: "FemmeStore",
+      description: "Order Checkout",
+      image: "/placeholder.svg",
+      handler: function (response: any) {
+        toast({
+          title: "Payment Successful!",
+          description: "Your payment has been received. Thank you for your order.",
+        });
+        setCartItems([]);
+        setShowCart(false);
+      },
+      prefill: {
+        name: "",
+        email: "",
+        contact: "",
+      },
+      theme: {
+        color: "#fc66ab",
+      },
+      modal: {
+        ondismiss: function () {
+          toast({
+            title: "Payment Cancelled",
+            description: "You have cancelled the payment.",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
   };
 
   return (
@@ -278,7 +335,6 @@ export default function Store() {
             Shop for high-quality menstrual products that are both comfortable and environmentally friendly.
           </p>
           
-          {/* Category filters */}
           <div className="flex flex-wrap gap-2 mt-4">
             <Button 
               variant={selectedCategory === null ? "default" : "outline"} 
@@ -303,7 +359,6 @@ export default function Store() {
           </div>
         </div>
 
-        {/* Featured section for cravings */}
         {(selectedCategory === "Cravings" || selectedCategory === null) && (
           <div className="mb-8">
             <div className="flex items-center mb-4">
@@ -316,7 +371,6 @@ export default function Store() {
           </div>
         )}
 
-        {/* Products grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProducts.map(product => (
             <Card key={product.id} className="overflow-hidden shadow-lg border-femme-taupe border-opacity-50 h-full flex flex-col">
@@ -364,7 +418,6 @@ export default function Store() {
           ))}
         </div>
 
-        {/* Cart sidebar */}
         {showCart && (
           <div className="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-xl z-20 overflow-auto">
             <div className="p-4">
@@ -440,14 +493,7 @@ export default function Store() {
                     </div>
                     <Button 
                       className="w-full bg-femme-pink hover:bg-femme-pink/90 mb-2"
-                      onClick={() => {
-                        toast({
-                          title: "Order Placed!",
-                          description: "Your order has been successfully placed.",
-                        });
-                        setCartItems([]);
-                        setShowCart(false);
-                      }}
+                      onClick={handleRazorpayPayment}
                     >
                       Checkout
                     </Button>
