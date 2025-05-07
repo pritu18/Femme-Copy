@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const signupSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -30,6 +31,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { toast } = useToast();
+  const { signUp } = useAuth();
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -45,26 +47,19 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
     setIsLoading(true);
     
     try {
-      // This is where you would normally connect to your auth provider
-      console.log("Signup attempt with:", data);
+      const [firstName, ...lastNameParts] = data.name.trim().split(' ');
+      const lastName = lastNameParts.join(' ');
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: "Account created!",
-        description: "Your account has been successfully created.",
+      await signUp(data.email, data.password, {
+        first_name: firstName,
+        last_name: lastName || ''
       });
       
       if (onSuccess) {
         onSuccess();
       }
     } catch (error) {
-      toast({
-        title: "Registration failed",
-        description: "Unable to create your account. Please try again later.",
-        variant: "destructive",
-      });
+      // Error is already handled in signUp
     } finally {
       setIsLoading(false);
     }

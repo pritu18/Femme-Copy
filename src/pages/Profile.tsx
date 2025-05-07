@@ -1,274 +1,226 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Loader2, LogOut, User, Camera, Save } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
-import { ArrowLeft, Save, LogOut } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "@/hooks/use-toast";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-// Define the form schema
-const profileFormSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  phone: z.string().optional(),
-  bio: z.string().optional(),
-  notificationPreferences: z.object({
-    email: z.boolean().default(false),
-    push: z.boolean().default(false),
-  }),
-});
-
-type ProfileFormValues = z.infer<typeof profileFormSchema>;
-
-// Default values for the form
-const defaultValues: Partial<ProfileFormValues> = {
-  name: "",
-  email: "",
-  phone: "",
-  bio: "",
-  notificationPreferences: {
-    email: false,
-    push: true,
-  },
-};
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Profile() {
+  const { user, signOut, loading } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // Initialize the form with react-hook-form
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileFormSchema),
-    defaultValues,
-  });
-
-  // Load existing profile data from localStorage if it exists
+  // Fetch user profile data
   useEffect(() => {
-    const savedProfile = localStorage.getItem("userProfile");
-    if (savedProfile) {
-      try {
-        const profileData = JSON.parse(savedProfile);
-        form.reset(profileData);
-      } catch (error) {
-        console.error("Error parsing profile data:", error);
-      }
-    }
-  }, [form]);
+    const fetchProfile = async () => {
+      if (!user) return;
 
-  // Function to handle form submission
-  function onSubmit(data: ProfileFormValues) {
-    setIsLoading(true);
-    
-    // Simulate API call delay
-    setTimeout(() => {
-      // Save profile data to localStorage
-      localStorage.setItem("userProfile", JSON.stringify(data));
-      
-      // Show success message
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        if (data) {
+          setProfile(data);
+          setFirstName(data.first_name || "");
+          setLastName(data.last_name || "");
+          setAvatarUrl(data.avatar_url || "");
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        toast({
+          title: "Failed to load profile",
+          description: "Please try again later.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          first_name: firstName,
+          last_name: lastName,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        throw error;
+      }
+
       toast({
         title: "Profile updated",
-        description: "Your profile has been successfully updated.",
+        description: "Your profile has been updated successfully.",
       });
-      
-      setIsLoading(false);
-    }, 1000);
-  }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Update failed",
+        description: "Failed to update your profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
-  // Handle sign out
-  const handleSignOut = () => {
-    // Clear any user data from localStorage if needed
-    // localStorage.removeItem("userProfile"); // Uncomment if you want to clear profile on logout
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
-    // Show toast notification
-    toast({
-      title: "Signed out",
-      description: "You have been successfully signed out.",
-    });
-
-    // Redirect to auth page
-    navigate("/");
+  const getInitials = () => {
+    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U';
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-femme-beige to-femme-pink-light">
-      <header className="bg-white shadow-md py-4">
+      <header className="bg-white shadow-md py-4 sticky top-0 z-10">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <Logo className="h-10" />
-          <div className="flex gap-4">
-            <Button variant="outline" asChild className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">
-              <Link to="/dashboard">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Link>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy"
-              onClick={handleSignOut}
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
+          <Button variant="outline" onClick={() => navigate('/dashboard')} className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">
+            Return to Dashboard
+          </Button>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <Card className="max-w-2xl mx-auto shadow-lg border-femme-taupe border-opacity-50">
-          <CardHeader>
-            <CardTitle className="text-femme-burgundy text-2xl">Your Profile</CardTitle>
-            <CardDescription>
-              Manage your account details and preferences
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-femme-burgundy">Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Your name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        <div className="max-w-2xl mx-auto">
+          <h1 className="text-2xl font-bold text-femme-burgundy mb-6">Your Profile</h1>
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-femme-burgundy">Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="your.email@example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-femme-burgundy">Phone (optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Your phone number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="bio"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-femme-burgundy">Bio (optional)</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Tell us a bit about yourself..." 
-                          className="min-h-[120px]" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-femme-burgundy">Notification Preferences</h3>
-                  
-                  <FormField
-                    control={form.control}
-                    name="notificationPreferences.email"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-femme-burgundy">Email Notifications</FormLabel>
-                          <FormDescription>
-                            Receive emails about your period cycle and reminders
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={field.onChange}
-                            className="accent-femme-pink h-5 w-5"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="notificationPreferences.push"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-femme-burgundy">Push Notifications</FormLabel>
-                          <FormDescription>
-                            Receive push notifications on your device
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={field.onChange}
-                            className="accent-femme-pink h-5 w-5"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+          {isLoading ? (
+            <div className="flex justify-center my-8">
+              <Loader2 className="h-8 w-8 animate-spin text-femme-burgundy" />
+            </div>
+          ) : (
+            <Card className="shadow-lg border-femme-taupe border-opacity-50">
+              <CardHeader>
+                <div className="flex flex-col md:flex-row items-center gap-4">
+                  <div className="relative">
+                    <Avatar className="h-24 w-24">
+                      {avatarUrl ? (
+                        <AvatarImage src={avatarUrl} alt={`${firstName} ${lastName}`} />
+                      ) : null}
+                      <AvatarFallback className="bg-femme-pink text-white text-xl">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="absolute bottom-0 right-0 rounded-full bg-white border-femme-pink"
+                      disabled
+                    >
+                      <Camera className="h-4 w-4 text-femme-burgundy" />
+                    </Button>
+                  </div>
+                  <div>
+                    <CardTitle className="text-femme-burgundy text-xl mb-1">
+                      {firstName && lastName ? `${firstName} ${lastName}` : "Your Profile"}
+                    </CardTitle>
+                    <CardDescription>{user?.email}</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="firstName" className="text-sm font-medium text-femme-burgundy">
+                    First Name
+                  </label>
+                  <Input
+                    id="firstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="bg-white"
                   />
                 </div>
-
+                <div className="space-y-2">
+                  <label htmlFor="lastName" className="text-sm font-medium text-femme-burgundy">
+                    Last Name
+                  </label>
+                  <Input
+                    id="lastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="bg-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium text-femme-burgundy">
+                    Email
+                  </label>
+                  <Input
+                    id="email"
+                    value={user?.email || ""}
+                    disabled
+                    className="bg-gray-50"
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col md:flex-row gap-3 justify-between">
                 <Button 
-                  type="submit" 
-                  disabled={isLoading} 
-                  className="w-full bg-femme-pink hover:bg-femme-pink/90"
+                  variant="outline" 
+                  className="w-full md:w-auto border-femme-burgundy text-femme-burgundy"
+                  onClick={handleLogout}
                 >
-                  {isLoading ? (
-                    <span className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </Button>
+                <Button 
+                  onClick={handleSaveProfile}
+                  className="w-full md:w-auto bg-femme-pink hover:bg-femme-burgundy"
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Saving...
-                    </span>
+                    </>
                   ) : (
-                    <span className="flex items-center">
+                    <>
                       <Save className="mr-2 h-4 w-4" />
-                      Save Profile
-                    </span>
+                      Save Changes
+                    </>
                   )}
                 </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+              </CardFooter>
+            </Card>
+          )}
+        </div>
       </main>
     </div>
   );

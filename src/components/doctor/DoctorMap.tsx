@@ -26,7 +26,8 @@ const DoctorMap: React.FC<DoctorMapProps> = ({ doctors, apiKey }) => {
     let map: any;
 
     loadGoogleMapsScript(apiKey).then(() => {
-      if (!mapRef.current) return;
+      if (!mapRef.current || !window.google) return;
+      
       map = new window.google.maps.Map(mapRef.current, {
         center: { lat: doctors[0]?.lat || 0, lng: doctors[0]?.lng || 0 },
         zoom: 13,
@@ -50,7 +51,7 @@ const DoctorMap: React.FC<DoctorMapProps> = ({ doctors, apiKey }) => {
       });
 
       // Create bounds object to fit all markers
-      const bounds = new window.google.maps.LatLngBounds();
+      const bounds = new google.maps.LatLngBounds();
 
       doctors.forEach(doctor => {
         const position = { lat: doctor.lat, lng: doctor.lng };
@@ -61,7 +62,7 @@ const DoctorMap: React.FC<DoctorMapProps> = ({ doctors, apiKey }) => {
           map,
           title: doctor.name,
           icon: {
-            path: window.google.maps.SymbolPath.CIRCLE,
+            path: google.maps.SymbolPath.CIRCLE,
             fillColor: "#D291BC",
             fillOpacity: 1,
             strokeWeight: 1,
@@ -95,7 +96,7 @@ const DoctorMap: React.FC<DoctorMapProps> = ({ doctors, apiKey }) => {
         
         // Add some padding to the bounds
         const padding = { top: 50, right: 50, bottom: 50, left: 50 };
-        map.fitBounds(bounds, padding);
+        map.fitBounds(bounds);
       }
     });
   }, [apiKey, doctors]);

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -34,11 +35,13 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
     setIsLoading(true);
     
     try {
-      // This is where you would normally connect to your auth provider
-      console.log("Password reset request for:", data.email);
+      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (error) {
+        throw error;
+      }
       
       toast({
         title: "Recovery email sent",
@@ -48,10 +51,11 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
       if (onSuccess) {
         onSuccess();
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Password reset error:", error);
       toast({
         title: "Request failed",
-        description: "Unable to process your request. Please try again later.",
+        description: error.message || "Unable to process your request. Please try again later.",
         variant: "destructive",
       });
     } finally {
