@@ -5,8 +5,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { PostgrestError } from '@supabase/supabase-js';
 
+// Define valid table names to ensure type safety
+type ValidTableNames = 'profiles' | 'orders' | string;
+
 interface UseSupabaseDataOptions {
-  table: string;
+  table: ValidTableNames;
   column?: string;
   value?: any;
   select?: string;
@@ -90,7 +93,7 @@ export function useSupabaseData<T = any>(options: UseSupabaseDataOptions) {
   return { data, loading, error };
 }
 
-export async function insertData<T = any>(table: string, data: any) {
+export async function insertData<T = any>(table: ValidTableNames, data: any) {
   try {
     const { data: result, error } = await (supabase
       .from(table)
@@ -108,7 +111,7 @@ export async function insertData<T = any>(table: string, data: any) {
   }
 }
 
-export async function updateData<T = any>(table: string, id: string, data: any) {
+export async function updateData<T = any>(table: ValidTableNames, id: string, data: any) {
   try {
     const { data: result, error } = await (supabase
       .from(table)
@@ -127,7 +130,7 @@ export async function updateData<T = any>(table: string, id: string, data: any) 
   }
 }
 
-export async function deleteData(table: string, id: string) {
+export async function deleteData(table: ValidTableNames, id: string) {
   try {
     const { error } = await (supabase
       .from(table)
