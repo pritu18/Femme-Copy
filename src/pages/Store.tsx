@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
+// Product interface definition
 interface Product {
   id: string;
   name: string;
@@ -18,6 +20,13 @@ interface Product {
   inStock: boolean;
 }
 
+// CartItem interface definition
+interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
+// Sample products data
 const products: Product[] = [
   {
     id: "1",
@@ -141,20 +150,17 @@ const products: Product[] = [
   }
 ];
 
-interface CartItem {
-  product: Product;
-  quantity: number;
-}
+// Replace this with your actual Stripe publishable key
+const STRIPE_PUBLIC_KEY = "pk_test_51OtOFYSBwLyUlkX1ZUqIjpxrqooMQQu0baxvo87RbJWUQnk7sFVw8bUvlKO8XO4MYnT9qRpGh9XosdgpHWHijWTC00N1m1ervj";
 
-// Replace Razorpay with Stripe
-const STRIPE_PUBLIC_KEY = "pk_test_your_stripe_public_key";
-
+// Function to load Stripe script
 function loadStripeScript(): Promise<void> {
   return new Promise((resolve, reject) => {
     if (document.getElementById("stripe-script")) {
       resolve();
       return;
     }
+    
     const script = document.createElement("script");
     script.id = "stripe-script";
     script.src = "https://js.stripe.com/v3/";
@@ -250,11 +256,12 @@ export default function Store() {
     }
   };
 
-  const handleStripePayment = async () => {
+  // Enhanced Stripe checkout function
+  const handleStripeCheckout = async () => {
     if (!STRIPE_PUBLIC_KEY) {
       toast({
         title: "Stripe Key Required",
-        description: "Please set your Stripe Public Key for payments to work.",
+        description: "Please provide a valid Stripe Public Key for payments to work.",
         variant: "destructive",
       });
       return;
@@ -262,60 +269,62 @@ export default function Store() {
 
     try {
       setIsProcessingPayment(true);
+      toast({
+        title: "Processing Payment",
+        description: "Preparing to redirect to Stripe...",
+      });
+
+      // Load the Stripe.js script
       await loadStripeScript();
-      const stripe = window.Stripe(STRIPE_PUBLIC_KEY);
       
-      // In a real application, you would call your backend API to create a checkout session
-      // For demo purposes, we're showing a simplified flow
-      const items = cartItems.map(item => ({
+      // Create a formatted list of line items for the checkout session
+      const lineItems = cartItems.map(item => ({
         price_data: {
-          currency: 'inr',
+          currency: "inr",
           product_data: {
             name: item.product.name,
             images: [item.product.image],
+            description: item.product.description.substring(0, 255),
           },
-          unit_amount: item.product.price * 100, // Convert to paise
+          unit_amount: item.product.price * 100, // Convert to paise (cents)
         },
         quantity: item.quantity,
       }));
 
-      // Normally you would make an API call to your backend
-      // The backend would create a Stripe session and return the session ID
-      // For demonstration, we're showing a toast message
-      toast({
-        title: "Stripe Checkout",
-        description: "In a real implementation, this would redirect to Stripe Checkout with your items.",
+      // Normally you would send this data to your backend API to create a Checkout session
+      // For demonstration, we're simulating the response
+      
+      // In a real implementation, you'd make an API call to your server:
+      const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${STRIPE_PUBLIC_KEY}`,
+        },
+        body: JSON.stringify({
+          payment_method_types: ['card'],
+          line_items: lineItems,
+          mode: 'payment',
+          success_url: `${window.location.origin}/dashboard?payment=success`,
+          cancel_url: `${window.location.origin}/store?payment=canceled`,
+        }),
       });
 
-      // Simulating successful payment for demonstration
-      setTimeout(() => {
-        toast({
-          title: "Payment Successful!",
-          description: "Your order has been processed successfully.",
-        });
-        setCartItems([]);
-        setShowCart(false);
-        setIsProcessingPayment(false);
-      }, 2000);
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const session = await response.json();
       
-      // In a real implementation, you would do:
-      // const session = await fetch('/api/create-checkout-session', { 
-      //   method: 'POST', 
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ items, customer_email: 'customer@example.com' })
-      // }).then(res => res.json());
-      // 
-      // const result = await stripe.redirectToCheckout({
-      //   sessionId: session.id,
-      // });
-      // 
-      // if (result.error) {
-      //   toast({
-      //     title: "Payment Error",
-      //     description: result.error.message,
-      //     variant: "destructive",
-      //   });
-      // }
+      // Initialize Stripe and redirect to checkout
+      const stripe = window.Stripe(STRIPE_PUBLIC_KEY);
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: session.id,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
     } catch (error) {
       console.error("Payment error:", error);
       toast({
@@ -323,6 +332,7 @@ export default function Store() {
         description: "There was an error processing your payment. Please try again.",
         variant: "destructive",
       });
+    } finally {
       setIsProcessingPayment(false);
     }
   };
@@ -521,7 +531,7 @@ export default function Store() {
                     </div>
                     <Button 
                       className="w-full bg-femme-pink hover:bg-femme-pink/90 mb-2"
-                      onClick={handleStripePayment}
+                      onClick={handleStripeCheckout}
                       disabled={isProcessingPayment}
                     >
                       {isProcessingPayment ? 'Processing...' : 'Checkout with Stripe'}
