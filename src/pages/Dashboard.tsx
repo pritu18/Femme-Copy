@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarIcon, Plus, CalendarDays, UserRound, ShoppingBag, Stethoscope, BarChart2 } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { toast } from "@/hooks/use-toast";
@@ -18,6 +19,10 @@ import SymptomTrackingDialog from "@/components/period/SymptomTrackingDialog";
 import CyclePredictions from "@/components/period/CyclePredictions";
 import CycleAnalytics from "@/components/period/CycleAnalytics";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import WaterIntakeTracker from "@/components/health/WaterIntakeTracker";
+import SleepTracker from "@/components/health/SleepTracker";
+import HealthInsights from "@/components/education/HealthInsights";
+import WeightTracker from "@/components/health/WeightTracker";
 
 interface PeriodDay {
   date: Date;
@@ -45,6 +50,7 @@ export default function Dashboard() {
   const [selectedDayForSymptoms, setSelectedDayForSymptoms] = useState<PeriodDay | null>(null);
   const [showSymptomDialog, setShowSymptomDialog] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("period");
 
   // Load saved periods from localStorage on component mount
   useEffect(() => {
@@ -241,195 +247,308 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-femme-beige to-femme-pink-light">
-      <header className="bg-white shadow-md py-4">
+      <header className="bg-white shadow-md py-4 sticky top-0 z-10">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <Logo className="h-10" />
-          <div className="hidden md:flex gap-3">
+          <div className="flex gap-3">
             <Button variant="outline" asChild className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">
               <Link to="/profile">
                 <UserRound className="h-4 w-4 mr-2" />
-                Profile
+                <span className="hidden sm:inline">Profile</span>
               </Link>
             </Button>
             <Button variant="outline" asChild className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">
               <Link to="/store">
                 <ShoppingBag className="h-4 w-4 mr-2" />
-                Store
+                <span className="hidden sm:inline">Store</span>
               </Link>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="lg:w-1/2 space-y-8">
-            <Card className="shadow-lg border-femme-taupe border-opacity-50">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-femme-burgundy text-2xl">Period Calendar</CardTitle>
-                  <Button onClick={() => setShowAddPeriodDialog(true)} className="bg-femme-pink hover:bg-femme-pink/90">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Period
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="flex justify-center">
-                <Calendar
-                  mode="single"
-                  className="rounded-lg border shadow p-3"
-                  modifiers={{
-                    periodDay: getAllPeriodDays().map(day => day.date),
-                  }}
-                  modifiersStyles={{
-                    periodDay: { 
-                      backgroundColor: "#D291BC", 
-                      color: "white",
-                      borderRadius: "100%" 
-                    },
-                  }}
-                  components={{
-                    DayContent: (props) => {
-                      const { date } = props;
-                      const dateNumber = date.getDate();
-                      
-                      if (isPeriodDay(date)) {
-                        const mood = getMoodForDay(date);
-                        const symptoms = getSymptomsForDay(date);
-                        
-                        return (
-                          <div className="flex flex-col items-center">
-                            <div>{dateNumber}</div>
-                            {mood && (
-                              <div className="mt-1">
-                                {getMoodIcon(mood, 12)}
-                              </div>
-                            )}
-                            {symptoms && symptoms.length > 0 && (
-                              <div className="text-xs text-white">●</div>
-                            )}
-                          </div>
-                        );
-                      }
-                      return <>{dateNumber}</>;
-                    }
-                  }}
-                  onDayClick={handleDayClick}
-                />
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <div className="flex gap-2 items-center text-sm text-femme-burgundy/70">
-                  <div className="h-3 w-3 rounded-full bg-femme-pink"></div>
-                  <span>Period days</span>
-                </div>
-              </CardFooter>
-            </Card>
-
-            <CyclePredictions periodCycles={periodCycles} />
-
-            <Collapsible 
-              open={isStatsOpen} 
-              onOpenChange={setIsStatsOpen}
-              className="shadow-lg border border-femme-taupe border-opacity-50 rounded-lg bg-white"
-            >
-              <CollapsibleTrigger asChild>
-                <div className="p-4 flex justify-between items-center cursor-pointer hover:bg-femme-pink-light/10">
-                  <div className="flex items-center gap-2">
-                    <BarChart2 className="h-5 w-5 text-femme-burgundy" />
-                    <h3 className="text-femme-burgundy text-xl font-medium">Period Analytics</h3>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    {isStatsOpen ? "Hide" : "Show"}
-                  </Button>
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="p-4">
-                <CycleAnalytics periodCycles={periodCycles} />
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
-
-          <div className="lg:w-1/2 space-y-8">
-            <Card className="shadow-lg border-femme-taupe border-opacity-50">
-              <CardHeader>
-                <CardTitle className="text-femme-burgundy text-xl">Current Cycle</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {getCurrentCycle() ? (
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium text-femme-burgundy mb-2">Period Dates</h3>
-                      <div className="flex items-center gap-2 text-femme-burgundy/70">
-                        <CalendarDays className="h-5 w-5 text-femme-burgundy" />
-                        <span>
-                          {format(getCurrentCycle()!.startDate, "MMMM d, yyyy")} 
-                          {getCurrentCycle()!.endDate 
-                            ? ` - ${format(getCurrentCycle()!.endDate, "MMMM d, yyyy")}` 
-                            : " (ongoing)"}
-                        </span>
-                      </div>
-                      {getCurrentCycle()!.endDate && (
-                        <div className="mt-1 text-femme-burgundy/70">
-                          Duration: {differenceInDays(getCurrentCycle()!.endDate!, getCurrentCycle()!.startDate) + 1} days
-                        </div>
-                      )}
+      <main className="container mx-auto px-4 py-6">
+        <div className="mb-6 flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-femme-burgundy">Hello, Beautiful</h1>
+          <Button 
+            onClick={() => setShowAddPeriodDialog(true)} 
+            className="bg-femme-pink hover:bg-femme-pink/90"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Track Period
+          </Button>
+        </div>
+        
+        <Tabs 
+          defaultValue="period" 
+          value={activeTab} 
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
+          <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsTrigger value="period" className="text-femme-burgundy data-[state=active]:bg-femme-pink data-[state=active]:text-white">
+              Period
+            </TabsTrigger>
+            <TabsTrigger value="health" className="text-femme-burgundy data-[state=active]:bg-femme-pink data-[state=active]:text-white">
+              Health
+            </TabsTrigger>
+            <TabsTrigger value="insights" className="text-femme-burgundy data-[state=active]:bg-femme-pink data-[state=active]:text-white">
+              Insights
+            </TabsTrigger>
+            <TabsTrigger value="medical" className="text-femme-burgundy data-[state=active]:bg-femme-pink data-[state=active]:text-white">
+              Medical
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="period">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <Card className="shadow-lg border-femme-taupe border-opacity-50">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-femme-burgundy text-xl">Period Calendar</CardTitle>
                     </div>
+                  </CardHeader>
+                  <CardContent className="flex justify-center">
+                    <Calendar
+                      mode="single"
+                      className="rounded-lg border shadow p-3 pointer-events-auto"
+                      modifiers={{
+                        periodDay: getAllPeriodDays().map(day => day.date),
+                      }}
+                      modifiersStyles={{
+                        periodDay: { 
+                          backgroundColor: "#D291BC", 
+                          color: "white",
+                          borderRadius: "100%" 
+                        },
+                      }}
+                      components={{
+                        DayContent: (props) => {
+                          const { date } = props;
+                          const dateNumber = date.getDate();
+                          
+                          if (isPeriodDay(date)) {
+                            const mood = getMoodForDay(date);
+                            const symptoms = getSymptomsForDay(date);
+                            
+                            return (
+                              <div className="flex flex-col items-center">
+                                <div>{dateNumber}</div>
+                                {mood && (
+                                  <div className="mt-1">
+                                    {getMoodIcon(mood, 12)}
+                                  </div>
+                                )}
+                                {symptoms && symptoms.length > 0 && (
+                                  <div className="text-xs text-white">●</div>
+                                )}
+                              </div>
+                            );
+                          }
+                          return <>{dateNumber}</>;
+                        }
+                      }}
+                      onDayClick={handleDayClick}
+                    />
+                  </CardContent>
+                  <CardFooter className="flex justify-between flex-wrap gap-2">
+                    <div className="flex gap-2 items-center text-sm text-femme-burgundy/70">
+                      <div className="h-3 w-3 rounded-full bg-femme-pink"></div>
+                      <span>Period days</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-femme-burgundy"
+                        onClick={() => {
+                          const today = new Date();
+                          handleSymptomTracking(today);
+                        }}
+                      >
+                        Track Symptoms
+                      </Button>
+                    </div>
+                  </CardFooter>
+                </Card>
 
-                    {getCurrentCycle()!.notes && (
-                      <div>
-                        <h3 className="font-medium text-femme-burgundy mb-2">Notes</h3>
-                        <div className="text-femme-burgundy/70 italic bg-femme-pink-light/20 p-3 rounded">
-                          {getCurrentCycle()!.notes}
+                <CyclePredictions periodCycles={periodCycles} />
+
+                <Collapsible 
+                  open={isStatsOpen} 
+                  onOpenChange={setIsStatsOpen}
+                  className="shadow-lg border border-femme-taupe border-opacity-50 rounded-lg bg-white"
+                >
+                  <CollapsibleTrigger asChild>
+                    <div className="p-4 flex justify-between items-center cursor-pointer hover:bg-femme-pink-light/10">
+                      <div className="flex items-center gap-2">
+                        <BarChart2 className="h-5 w-5 text-femme-burgundy" />
+                        <h3 className="text-femme-burgundy text-xl font-medium">Period Analytics</h3>
+                      </div>
+                      <Button variant="ghost" size="sm">
+                        {isStatsOpen ? "Hide" : "Show"}
+                      </Button>
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="p-4">
+                    <CycleAnalytics periodCycles={periodCycles} />
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+
+              <div className="space-y-6">
+                <Card className="shadow-lg border-femme-taupe border-opacity-50">
+                  <CardHeader>
+                    <CardTitle className="text-femme-burgundy text-xl">Current Cycle</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {getCurrentCycle() ? (
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="font-medium text-femme-burgundy mb-2">Period Dates</h3>
+                          <div className="flex items-center gap-2 text-femme-burgundy/70">
+                            <CalendarDays className="h-5 w-5 text-femme-burgundy" />
+                            <span>
+                              {format(getCurrentCycle()!.startDate, "MMMM d, yyyy")} 
+                              {getCurrentCycle()!.endDate 
+                                ? ` - ${format(getCurrentCycle()!.endDate, "MMMM d, yyyy")}` 
+                                : " (ongoing)"}
+                            </span>
+                          </div>
+                          {getCurrentCycle()!.endDate && (
+                            <div className="mt-1 text-femme-burgundy/70">
+                              Duration: {differenceInDays(getCurrentCycle()!.endDate!, getCurrentCycle()!.startDate) + 1} days
+                            </div>
+                          )}
+                        </div>
+
+                        {getCurrentCycle()!.notes && (
+                          <div>
+                            <h3 className="font-medium text-femme-burgundy mb-2">Notes</h3>
+                            <div className="text-femme-burgundy/70 italic bg-femme-pink-light/20 p-3 rounded">
+                              {getCurrentCycle()!.notes}
+                            </div>
+                          </div>
+                        )}
+
+                        <div>
+                          <div className="flex justify-between items-center mb-2">
+                            <h3 className="font-medium text-femme-burgundy">Track Symptoms</h3>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleSymptomTracking(new Date())}
+                              className="text-xs"
+                            >
+                              Add Today
+                            </Button>
+                          </div>
+                          <div className="text-sm text-femme-burgundy/70 mb-2">
+                            Log your symptoms to track patterns during your cycle
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {["cramps", "headache", "bloating", "fatigue", "acne", "cravings"].map((symptom) => (
+                              <div
+                                key={symptom}
+                                className="flex items-center gap-1 text-xs bg-femme-pink-light/30 text-femme-burgundy rounded-full px-2 py-1"
+                              >
+                                {getSymptomIcon(symptom as SymptomType, 14)}
+                                <span>{getSymptomLabel(symptom as SymptomType)}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    )}
-
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <h3 className="font-medium text-femme-burgundy">Track Symptoms</h3>
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-femme-burgundy/70 mb-4">No periods logged yet</p>
                         <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleSymptomTracking(new Date())}
-                          className="text-xs"
+                          onClick={() => setShowAddPeriodDialog(true)} 
+                          className="bg-femme-pink hover:bg-femme-pink/90"
                         >
-                          Add Today
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Your First Period
                         </Button>
                       </div>
-                      <div className="text-sm text-femme-burgundy/70 mb-2">
-                        Log your symptoms to track patterns during your cycle
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {["cramps", "headache", "bloating", "fatigue", "acne", "cravings"].map((symptom) => (
-                          <div
-                            key={symptom}
-                            className="flex items-center gap-1 text-xs bg-femme-pink-light/30 text-femme-burgundy rounded-full px-2 py-1"
-                          >
-                            {getSymptomIcon(symptom as SymptomType, 14)}
-                            <span>{getSymptomLabel(symptom as SymptomType)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-femme-burgundy/70 mb-4">No periods logged yet</p>
-                    <Button 
-                      onClick={() => setShowAddPeriodDialog(true)} 
-                      className="bg-femme-pink hover:bg-femme-pink/90"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Your First Period
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                    )}
+                  </CardContent>
+                </Card>
 
-            <DoctorConsultation />
-          </div>
-        </div>
+                <WeightTracker />
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="health">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <WaterIntakeTracker />
+                <SleepTracker />
+              </div>
+              <div className="space-y-6">
+                <WeightTracker />
+                <HealthInsights />
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="insights">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <CyclePredictions periodCycles={periodCycles} />
+                <Collapsible 
+                  defaultOpen={true}
+                  className="shadow-lg border border-femme-taupe border-opacity-50 rounded-lg bg-white"
+                >
+                  <CollapsibleTrigger asChild>
+                    <div className="p-4 flex justify-between items-center cursor-pointer hover:bg-femme-pink-light/10">
+                      <div className="flex items-center gap-2">
+                        <BarChart2 className="h-5 w-5 text-femme-burgundy" />
+                        <h3 className="text-femme-burgundy text-xl font-medium">Period Analytics</h3>
+                      </div>
+                      <Button variant="ghost" size="sm">
+                        Toggle
+                      </Button>
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="p-4">
+                    <CycleAnalytics periodCycles={periodCycles} />
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+              <div className="space-y-6">
+                <HealthInsights />
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="medical">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <DoctorConsultation />
+              </div>
+              <div className="space-y-6">
+                <Card className="shadow-lg border-femme-taupe border-opacity-50">
+                  <CardHeader>
+                    <CardTitle className="text-femme-burgundy flex items-center gap-2">
+                      <Stethoscope className="h-5 w-5 text-femme-burgundy" />
+                      Medical Records
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <p className="text-femme-burgundy/70 mb-4">Coming soon!</p>
+                      <p className="text-sm text-femme-burgundy/60">
+                        Medical records and doctor appointment management will be available in the next update.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </main>
 
       {/* Add Period Dialog */}
