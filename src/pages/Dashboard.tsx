@@ -289,7 +289,8 @@ export default function Dashboard() {
                     },
                   }}
                   components={{
-                    DayContent: ({ date }) => {
+                    DayContent: (props) => {
+                      const { date } = props;
                       const dateNumber = date.getDate();
                       
                       if (isPeriodDay(date)) {
@@ -310,7 +311,7 @@ export default function Dashboard() {
                           </div>
                         );
                       }
-                      return dateNumber;
+                      return <>{dateNumber}</>;
                     }
                   }}
                   onDayClick={handleDayClick}
@@ -464,6 +465,7 @@ export default function Dashboard() {
                       selected={newStartDate}
                       onSelect={setNewStartDate}
                       initialFocus
+                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
@@ -495,6 +497,7 @@ export default function Dashboard() {
                         newStartDate ? date < newStartDate : date < new Date()
                       }
                       initialFocus
+                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
