@@ -1,19 +1,28 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, LogOut, User, Camera, Save } from "lucide-react";
+import { Loader2, LogOut, Save } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
+interface ProfileData {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  avatar_url: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export default function Profile() {
   const { user, signOut, loading } = useAuth();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [firstName, setFirstName] = useState("");
@@ -40,7 +49,7 @@ export default function Profile() {
         }
 
         if (data) {
-          setProfile(data);
+          setProfile(data as ProfileData);
           setFirstName(data.first_name || "");
           setLastName(data.last_name || "");
           setAvatarUrl(data.avatar_url || "");

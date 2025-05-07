@@ -47,19 +47,37 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
     setIsLoading(true);
     
     try {
-      const [firstName, ...lastNameParts] = data.name.trim().split(' ');
-      const lastName = lastNameParts.join(' ');
+      // Split name into first and last name
+      const nameParts = data.name.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+      
+      console.log("Signup data:", {
+        email: data.email,
+        password: "***",
+        metadata: { first_name: firstName, last_name: lastName }
+      });
       
       await signUp(data.email, data.password, {
         first_name: firstName,
-        last_name: lastName || ''
+        last_name: lastName
+      });
+      
+      toast({
+        title: "Account created",
+        description: "Your account has been created successfully. Please check your email for verification.",
       });
       
       if (onSuccess) {
         onSuccess();
       }
-    } catch (error) {
-      // Error is already handled in signUp
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      toast({
+        title: "Signup failed",
+        description: error.message || "An error occurred during signup",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

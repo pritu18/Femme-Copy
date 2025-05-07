@@ -15,6 +15,24 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper function to clean up auth state
+const cleanupAuthState = () => {
+  // Remove standard auth tokens
+  localStorage.removeItem('supabase.auth.token');
+  // Remove all Supabase auth keys from localStorage
+  Object.keys(localStorage).forEach((key) => {
+    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      localStorage.removeItem(key);
+    }
+  });
+  // Remove from sessionStorage if in use
+  Object.keys(sessionStorage || {}).forEach((key) => {
+    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      sessionStorage.removeItem(key);
+    }
+  });
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
@@ -22,9 +40,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log("AuthProvider mounted");
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("Auth state changed:", event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -33,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check:", session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -46,6 +68,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
+      
+      // Clean up existing auth state
+      cleanupAuthState();
+      
+      // Try to sign out globally first to avoid conflicts
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        // Continue even if this fails
+        console.log("Global sign out failed:", err);
+      }
+      
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       
       if (error) {
@@ -72,11 +106,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, metadata?: { first_name?: string; last_name?: string }) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signUp({ 
+      
+      // Clean up existing auth state
+      cleanupAuthState();
+      
+      console.log("Signing up with:", email, "and metadata:", metadata);
+      
+      const { data, error } = await supabase.auth.signUp({ 
         email, 
         password, 
         options: { 
-          data: metadata 
+          data: metadata,
+          emailRedirectTo: window.location.origin
         } 
       });
       
@@ -89,11 +130,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error;
       }
       
+      console.log("Sign up response:", data);
+      
       toast({
         title: "Account created",
         description: "Your account has been created successfully.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error signing up:", error);
       throw error;
     } finally {
@@ -104,11 +147,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       setLoading(true);
-      await supabase.auth.signOut();
+      
+      // Clean up auth state
+      cleanupAuthState();
+      
+      // Attempt global sign out
+      await supabase.auth.signOut({ scope: 'global' });
+      
       toast({
         title: "Logged out",
         description: "You have been signed out successfully.",
       });
+      
+      // Force page reload to ensure clean state
+      window.location.href = '/';
     } catch (error) {
       console.error("Error signing out:", error);
       toast({

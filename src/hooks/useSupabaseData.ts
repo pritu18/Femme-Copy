@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+import { PostgrestError } from '@supabase/supabase-js';
 
 interface UseSupabaseDataOptions {
   table: string;
@@ -12,13 +13,13 @@ interface UseSupabaseDataOptions {
   orderBy?: { column: string; ascending?: boolean };
   limit?: number;
   userId?: boolean; // Whether to filter by the current user's ID
-  onError?: (error: any) => void;
+  onError?: (error: PostgrestError) => void;
 }
 
 export function useSupabaseData<T = any>(options: UseSupabaseDataOptions) {
   const [data, setData] = useState<T[] | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<PostgrestError | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -33,6 +34,7 @@ export function useSupabaseData<T = any>(options: UseSupabaseDataOptions) {
       try {
         setLoading(true);
         
+        // Use the generic from method instead of direct table access
         let query = supabase
           .from(options.table)
           .select(options.select || '*');
@@ -88,7 +90,7 @@ export function useSupabaseData<T = any>(options: UseSupabaseDataOptions) {
   return { data, loading, error };
 }
 
-export async function insertData(table: string, data: any) {
+export async function insertData<T = any>(table: string, data: any) {
   try {
     const { data: result, error } = await supabase
       .from(table)
@@ -99,14 +101,14 @@ export async function insertData(table: string, data: any) {
       throw error;
     }
     
-    return { success: true, data: result, error: null };
+    return { success: true, data: result as T[], error: null };
   } catch (error: any) {
     console.error(`Error inserting data into ${table}:`, error);
     return { success: false, data: null, error };
   }
 }
 
-export async function updateData(table: string, id: string, data: any) {
+export async function updateData<T = any>(table: string, id: string, data: any) {
   try {
     const { data: result, error } = await supabase
       .from(table)
@@ -118,7 +120,7 @@ export async function updateData(table: string, id: string, data: any) {
       throw error;
     }
     
-    return { success: true, data: result, error: null };
+    return { success: true, data: result as T[], error: null };
   } catch (error: any) {
     console.error(`Error updating data in ${table}:`, error);
     return { success: false, data: null, error };
