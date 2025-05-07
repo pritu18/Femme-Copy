@@ -22,7 +22,7 @@ const DoctorMap: React.FC<DoctorMapProps> = ({ doctors, apiKey }) => {
 
   useEffect(() => {
     if (!apiKey) return;
-    let map: google.maps.Map | undefined;
+    let map: any;
 
     loadGoogleMapsScript(apiKey).then(() => {
       if (!mapRef.current) return;

@@ -369,7 +369,7 @@ export default function Store() {
       };
 
       // Initialize Razorpay
-      const rzp = new window.Razorpay(options);
+      const rzp = window.Razorpay(options);
       
       // Handle payment failures
       rzp.on('payment.failed', function(response: any) {
