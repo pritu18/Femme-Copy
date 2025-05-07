@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -150,25 +149,59 @@ const products: Product[] = [
   }
 ];
 
-// Replace this with your actual Stripe publishable key
-const STRIPE_PUBLIC_KEY = "pk_test_51OtOFYSBwLyUlkX1ZUqIjpxrqooMQQu0baxvo87RbJWUQnk7sFVw8bUvlKO8XO4MYnT9qRpGh9XosdgpHWHijWTC00N1m1ervj";
-
-// Function to load Stripe script
-function loadStripeScript(): Promise<void> {
+// Function to load Razorpay script
+function loadRazorpayScript(): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (document.getElementById("stripe-script")) {
+    if (document.getElementById("razorpay-script")) {
       resolve();
       return;
     }
     
     const script = document.createElement("script");
-    script.id = "stripe-script";
-    script.src = "https://js.stripe.com/v3/";
+    script.id = "razorpay-script";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
     script.onload = () => resolve();
     script.onerror = (e) => reject(e);
     document.body.appendChild(script);
   });
+}
+
+// Define Razorpay options interface
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  image?: string;
+  order_id?: string;
+  handler: (response: any) => void;
+  prefill?: {
+    name?: string;
+    email?: string;
+    contact?: string;
+  };
+  notes?: {
+    [key: string]: string;
+  };
+  theme?: {
+    color: string;
+  };
+}
+
+// Define Razorpay interface
+interface RazorpayInterface {
+  open(): void;
+  on(event: string, callback: Function): void;
+  close(): void;
+}
+
+// Declare Razorpay constructor in the global window object
+declare global {
+  interface Window {
+    Razorpay(options: RazorpayOptions): RazorpayInterface;
+  }
 }
 
 export default function Store() {
@@ -256,12 +289,12 @@ export default function Store() {
     }
   };
 
-  // Enhanced Stripe checkout function
-  const handleStripeCheckout = async () => {
-    if (!STRIPE_PUBLIC_KEY) {
+  // Enhanced Razorpay checkout function
+  const handleRazorpayCheckout = async () => {
+    if (cartItems.length === 0) {
       toast({
-        title: "Stripe Key Required",
-        description: "Please provide a valid Stripe Public Key for payments to work.",
+        title: "Empty Cart",
+        description: "Please add items to your cart before checkout.",
         variant: "destructive",
       });
       return;
@@ -271,60 +304,85 @@ export default function Store() {
       setIsProcessingPayment(true);
       toast({
         title: "Processing Payment",
-        description: "Preparing to redirect to Stripe...",
+        description: "Preparing the checkout...",
       });
 
-      // Load the Stripe.js script
-      await loadStripeScript();
+      // Load the Razorpay script
+      await loadRazorpayScript();
       
-      // Create a formatted list of line items for the checkout session
-      const lineItems = cartItems.map(item => ({
-        price_data: {
-          currency: "inr",
-          product_data: {
-            name: item.product.name,
-            images: [item.product.image],
-            description: item.product.description.substring(0, 255),
-          },
-          unit_amount: item.product.price * 100, // Convert to paise (cents)
+      // Calculate final amount (in paise/cents)
+      const totalAmount = (totalPrice + 99) * 100;
+      
+      // Create a Razorpay order
+      // In a production app, this would be a call to your backend API
+      // For demo purposes, we'll create an order directly here
+      const orderData = {
+        amount: totalAmount,
+        currency: "INR",
+        receipt: `receipt_${Date.now()}`,
+        notes: {
+          description: "Order from FemmeStore"
+        }
+      };
+      
+      // Normally you would call your backend API to create an order
+      // For example: const response = await fetch('/api/create-order', { method: 'POST', body: JSON.stringify(orderData) });
+      // And then get the order_id from the response
+      
+      // For demo purposes, we'll simulate an order creation response
+      const orderId = `ord_${Date.now()}`;
+      
+      // Razorpay options configuration
+      const options: RazorpayOptions = {
+        key: "rzp_test_e9BjcfyTS09nFa", // Replace with your Razorpay key
+        amount: totalAmount,
+        currency: "INR",
+        name: "FemmeStore",
+        description: `Payment for ${cartItems.length} items`,
+        image: "https://images.unsplash.com/photo-1628624747186-a941c476b7ef", // Logo URL
+        order_id: orderId, // This should come from your backend for security
+        handler: function(response) {
+          // Handle successful payment
+          console.log("Payment successful", response);
+          toast({
+            title: "Payment Successful",
+            description: "Your order has been placed successfully!",
+          });
+          // Clear the cart after successful payment
+          setCartItems([]);
+          setShowCart(false);
+          
+          // Redirect to success page
+          // window.location.href = "/dashboard?payment=success";
         },
-        quantity: item.quantity,
-      }));
-
-      // Normally you would send this data to your backend API to create a Checkout session
-      // For demonstration, we're simulating the response
-      
-      // In a real implementation, you'd make an API call to your server:
-      const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${STRIPE_PUBLIC_KEY}`,
+        prefill: {
+          name: "",
+          email: "",
+          contact: ""
         },
-        body: JSON.stringify({
-          payment_method_types: ['card'],
-          line_items: lineItems,
-          mode: 'payment',
-          success_url: `${window.location.origin}/dashboard?payment=success`,
-          cancel_url: `${window.location.origin}/store?payment=canceled`,
-        }),
-      });
+        notes: {
+          address: "FemmeStore Office"
+        },
+        theme: {
+          color: "#d1478c" // Femme pink color
+        }
+      };
 
-      if (!response.ok) {
-        throw new Error('Failed to create checkout session');
-      }
-
-      const session = await response.json();
+      // Initialize Razorpay
+      const rzp = new window.Razorpay(options);
       
-      // Initialize Stripe and redirect to checkout
-      const stripe = window.Stripe(STRIPE_PUBLIC_KEY);
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: session.id,
+      // Handle payment failures
+      rzp.on('payment.failed', function(response: any) {
+        console.error('Payment failed:', response.error);
+        toast({
+          title: "Payment Failed",
+          description: response.error.description || "There was an issue with your payment.",
+          variant: "destructive",
+        });
       });
-
-      if (error) {
-        throw new Error(error.message);
-      }
+      
+      // Open Razorpay checkout
+      rzp.open();
     } catch (error) {
       console.error("Payment error:", error);
       toast({
@@ -531,10 +589,10 @@ export default function Store() {
                     </div>
                     <Button 
                       className="w-full bg-femme-pink hover:bg-femme-pink/90 mb-2"
-                      onClick={handleStripeCheckout}
+                      onClick={handleRazorpayCheckout}
                       disabled={isProcessingPayment}
                     >
-                      {isProcessingPayment ? 'Processing...' : 'Checkout with Stripe'}
+                      {isProcessingPayment ? 'Processing...' : 'Pay with Razorpay'}
                     </Button>
                     <Button 
                       variant="outline" 
