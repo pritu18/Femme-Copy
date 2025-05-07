@@ -6,6 +6,7 @@ import { ArrowLeft, ShoppingCart, Star, Plus, Minus, Heart, Info, Cookie, Pizza,
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
 
 // Product interface definition
 interface Product {
@@ -401,6 +402,7 @@ export default function Store() {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <Logo className="h-10" />
           <div className="flex items-center gap-4">
+            <LanguageSwitcher />
             <Button variant="outline" asChild className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">
               <Link to="/dashboard">
                 <ArrowLeft className="h-4 w-4 mr-2" />
