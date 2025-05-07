@@ -1,13 +1,9 @@
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { loadGoogleMapsScript } from '@/utils/loadGoogleMapsScript';
 
-// Fix the global interface declaration to avoid conflicts
-interface GoogleMapsWindow extends Window {
-  google: any;
-}
-
+// Import the Google Maps type declaration
 declare global {
   interface Window {
     google: any;

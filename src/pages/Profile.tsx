@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,10 +13,9 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileData {
   id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  avatar_url: string;
+  first_name: string | null;
+  last_name: string | null;
+  avatar_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -38,12 +38,11 @@ export default function Profile() {
 
       setIsLoading(true);
       try {
-        // Using type assertion for Supabase query to avoid TypeScript errors
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .single() as any;
+          .single();
 
         if (error) {
           throw error;
@@ -76,7 +75,6 @@ export default function Profile() {
 
     setIsSaving(true);
     try {
-      // Using type assertion for Supabase query
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -84,7 +82,7 @@ export default function Profile() {
           last_name: lastName,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', user.id) as any;
+        .eq('id', user.id);
 
       if (error) {
         throw error;
@@ -103,7 +101,7 @@ export default function Profile() {
           last_name: lastName,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating profile:", error);
       toast({
         title: "Update failed",
