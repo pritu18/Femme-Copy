@@ -14,6 +14,9 @@ import NotFound from "./pages/NotFound";
 import PeriodChatbot from "./components/chatbot/PeriodChatbot";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
+// Import i18n configuration
+import "./i18n/i18n";
+
 const queryClient = new QueryClient();
 
 const App = () => (

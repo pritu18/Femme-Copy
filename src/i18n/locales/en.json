@@ -1,0 +1,55 @@
+
+{
+  "app": {
+    "name": "Femme",
+    "tagline": "A Comprehensive Period Tracker"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "store": "Store",
+    "logout": "Logout"
+  },
+  "profile": {
+    "title": "Profile",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "save": "Save Changes",
+    "updateSuccess": "Profile updated successfully",
+    "updateFailed": "Failed to update profile"
+  },
+  "period": {
+    "tracker": "Period Tracker",
+    "cycle": "Cycle Analytics",
+    "predictions": "Cycle Predictions",
+    "symptoms": "Track Symptoms",
+    "mood": "Track Mood"
+  },
+  "health": {
+    "waterIntake": "Water Intake Tracker",
+    "sleep": "Sleep Tracker",
+    "weight": "Weight Tracker"
+  },
+  "doctor": {
+    "findNearby": "Find a Gynecologist Near You",
+    "schedule": "Schedule",
+    "appointment": "Appointment",
+    "location": "Location"
+  },
+  "language": {
+    "select": "Select Language",
+    "en": "English",
+    "hi": "हिंदी (Hindi)",
+    "ta": "தமிழ் (Tamil)"
+  }
+}

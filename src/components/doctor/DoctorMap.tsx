@@ -3,10 +3,23 @@ import { useState, useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { loadGoogleMapsScript } from '@/utils/loadGoogleMapsScript';
 
-// Import the Google Maps type declaration
+// Define Google Maps types without conflicting with existing declarations
 declare global {
   interface Window {
-    google: any;
+    google: {
+      maps: {
+        Map: new (element: HTMLElement, options: any) => any;
+        Marker: new (options: any) => any;
+        InfoWindow: new (options: any) => any;
+        LatLng: new (lat: number, lng: number) => any;
+        MapTypeId: {
+          ROADMAP: string;
+          SATELLITE: string;
+          HYBRID: string;
+          TERRAIN: string;
+        };
+      };
+    };
   }
 }
 

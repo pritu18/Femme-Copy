@@ -37,7 +37,7 @@ export function useSupabaseData<T = any>(options: UseSupabaseDataOptions) {
         // Use type assertion to handle dynamic table names
         let query = supabase
           .from(options.table)
-          .select(options.select || '*');
+          .select(options.select || '*') as any;
 
         if (options.column && options.value !== undefined) {
           query = query.eq(options.column, options.value);
@@ -92,10 +92,10 @@ export function useSupabaseData<T = any>(options: UseSupabaseDataOptions) {
 
 export async function insertData<T = any>(table: string, data: any) {
   try {
-    const { data: result, error } = await supabase
+    const { data: result, error } = await (supabase
       .from(table)
       .insert(data)
-      .select();
+      .select() as any);
     
     if (error) {
       throw error;
@@ -110,11 +110,11 @@ export async function insertData<T = any>(table: string, data: any) {
 
 export async function updateData<T = any>(table: string, id: string, data: any) {
   try {
-    const { data: result, error } = await supabase
+    const { data: result, error } = await (supabase
       .from(table)
       .update(data)
       .eq('id', id)
-      .select();
+      .select() as any);
     
     if (error) {
       throw error;
@@ -129,10 +129,10 @@ export async function updateData<T = any>(table: string, id: string, data: any) 
 
 export async function deleteData(table: string, id: string) {
   try {
-    const { error } = await supabase
+    const { error } = await (supabase
       .from(table)
       .delete()
-      .eq('id', id);
+      .eq('id', id) as any);
     
     if (error) {
       throw error;
