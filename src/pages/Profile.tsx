@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, LogOut, Save } from "lucide-react";
+import { Loader2, LogOut, Save, Camera } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -38,21 +38,23 @@ export default function Profile() {
 
       setIsLoading(true);
       try {
+        // Using type assertion for Supabase query to avoid TypeScript errors
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .single();
+          .single() as any;
 
         if (error) {
           throw error;
         }
 
         if (data) {
-          setProfile(data as ProfileData);
-          setFirstName(data.first_name || "");
-          setLastName(data.last_name || "");
-          setAvatarUrl(data.avatar_url || "");
+          const profileData = data as ProfileData;
+          setProfile(profileData);
+          setFirstName(profileData.first_name || "");
+          setLastName(profileData.last_name || "");
+          setAvatarUrl(profileData.avatar_url || "");
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -74,6 +76,7 @@ export default function Profile() {
 
     setIsSaving(true);
     try {
+      // Using type assertion for Supabase query
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -81,7 +84,7 @@ export default function Profile() {
           last_name: lastName,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', user.id);
+        .eq('id', user.id) as any;
 
       if (error) {
         throw error;
@@ -91,6 +94,15 @@ export default function Profile() {
         title: "Profile updated",
         description: "Your profile has been updated successfully.",
       });
+      
+      // Update the profile state
+      if (profile) {
+        setProfile({
+          ...profile,
+          first_name: firstName,
+          last_name: lastName,
+        });
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
       toast({

@@ -3,6 +3,11 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { loadGoogleMapsScript } from '@/utils/loadGoogleMapsScript';
 
+// Fix the global interface declaration to avoid conflicts
+interface GoogleMapsWindow extends Window {
+  google: any;
+}
+
 declare global {
   interface Window {
     google: any;
@@ -12,9 +17,23 @@ declare global {
 export interface DoctorMapProps {
   center?: { lat: number; lng: number };
   zoom?: number;
+  apiKey?: string;
+  doctors?: Array<{
+    id: string;
+    name: string;
+    specialty: string;
+    location: string;
+    lat: number;
+    lng: number;
+  }>;
 }
 
-export function DoctorMap({ center = { lat: 40.7128, lng: -74.006 }, zoom = 12 }: DoctorMapProps) {
+export function DoctorMap({ 
+  center = { lat: 40.7128, lng: -74.006 }, 
+  zoom = 12,
+  apiKey,
+  doctors
+}: DoctorMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [map, setMap] = useState<any>(null);
@@ -24,7 +43,8 @@ export function DoctorMap({ center = { lat: 40.7128, lng: -74.006 }, zoom = 12 }
   useEffect(() => {
     const loadMap = async () => {
       try {
-        await loadGoogleMapsScript();
+        // Pass the API key to the loadGoogleMapsScript function
+        await loadGoogleMapsScript(apiKey || "");
         setIsLoaded(true);
       } catch (error) {
         console.error('Failed to load Google Maps', error);
@@ -32,7 +52,7 @@ export function DoctorMap({ center = { lat: 40.7128, lng: -74.006 }, zoom = 12 }
     };
 
     loadMap();
-  }, []);
+  }, [apiKey]);
 
   // Initialize map once script is loaded
   useEffect(() => {
@@ -49,24 +69,49 @@ export function DoctorMap({ center = { lat: 40.7128, lng: -74.006 }, zoom = 12 }
       });
       setMap(mapInstance);
 
-      // Add some example doctors (would be replaced with real data)
-      const exampleDoctors = [
-        { position: { lat: center.lat + 0.01, lng: center.lng + 0.01 }, title: 'Dr. Sarah Johnson - OBGYN' },
-        { position: { lat: center.lat - 0.01, lng: center.lng - 0.01 }, title: 'Dr. Maria Rodriguez - Gynecologist' },
-        { position: { lat: center.lat + 0.015, lng: center.lng - 0.015 }, title: 'Dr. Emily Chen - Women\'s Health' }
+      // Add doctor markers if provided, otherwise use example data
+      const markersData = doctors || [
+        { 
+          id: '1',
+          name: 'Dr. Sarah Johnson',
+          specialty: 'OBGYN',
+          location: 'Women\'s Health Clinic',
+          lat: center.lat + 0.01, 
+          lng: center.lng + 0.01 
+        },
+        { 
+          id: '2',
+          name: 'Dr. Maria Rodriguez',
+          specialty: 'Gynecologist',
+          location: 'City Medical Center',
+          lat: center.lat - 0.01, 
+          lng: center.lng - 0.01 
+        },
+        { 
+          id: '3',
+          name: 'Dr. Emily Chen',
+          specialty: 'Women\'s Health',
+          location: 'Family Care Clinic',
+          lat: center.lat + 0.015, 
+          lng: center.lng - 0.015 
+        }
       ];
 
-      // Create markers for example doctors
-      const doctorMarkers = exampleDoctors.map(doctor => {
+      // Create markers for doctors
+      const doctorMarkers = markersData.map(doctor => {
         const marker = new window.google.maps.Marker({
-          position: doctor.position,
+          position: { lat: doctor.lat, lng: doctor.lng },
           map: mapInstance,
-          title: doctor.title,
+          title: doctor.name,
         });
 
         // Add click listener for info window
         const infoWindow = new window.google.maps.InfoWindow({
-          content: `<div class="p-2"><h3 class="font-medium">${doctor.title}</h3><p>Specialist in women's health</p><button class="text-femme-burgundy underline">Book Appointment</button></div>`
+          content: `<div class="p-2">
+            <h3 class="font-medium">${doctor.name}</h3>
+            <p>${doctor.specialty} at ${doctor.location}</p>
+            <button class="text-femme-burgundy underline">Book Appointment</button>
+          </div>`
         });
 
         marker.addListener('click', () => {
@@ -80,7 +125,7 @@ export function DoctorMap({ center = { lat: 40.7128, lng: -74.006 }, zoom = 12 }
     } catch (error) {
       console.error('Error initializing map', error);
     }
-  }, [isLoaded]);
+  }, [isLoaded, center, zoom, doctors]);
 
   // Update map center when props change
   useEffect(() => {
@@ -108,3 +153,5 @@ export function DoctorMap({ center = { lat: 40.7128, lng: -74.006 }, zoom = 12 }
     <div ref={mapRef} className="h-64 w-full rounded-lg shadow-md" />
   );
 }
+
+export default DoctorMap;

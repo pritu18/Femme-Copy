@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { CalendarIcon, Clock, MapPin, Phone, User } from "lucide-react";
-import DoctorMap from "@/components/doctor/DoctorMap";
+import { DoctorMap } from "@/components/doctor/DoctorMap";
 
 interface Doctor {
   id: string;
@@ -123,7 +124,18 @@ const DoctorConsultation: React.FC = () => {
       <CardContent>
         {/* Google Map showing doctor locations */}
         {GOOGLE_MAPS_API_KEY ? (
-          <DoctorMap doctors={mockDoctors} apiKey={GOOGLE_MAPS_API_KEY} />
+          <DoctorMap 
+            apiKey={GOOGLE_MAPS_API_KEY}
+            center={{ lat: 37.773972, lng: -122.431297 }}
+            doctors={mockDoctors.map(d => ({
+              id: d.id,
+              name: d.name,
+              specialty: d.specialty,
+              location: d.location,
+              lat: d.lat,
+              lng: d.lng
+            }))}
+          />
         ) : (
           <div className="bg-femme-pink-light text-femme-burgundy p-4 mb-4 rounded">
             Google Maps integration requires an API key. Please set your Google Maps API key!
