@@ -3,16 +3,13 @@ import { useState, useEffect } from "react";
 import { format, differenceInDays, isSameDay, isWithinInterval, addDays } from "date-fns";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, Plus, CalendarDays, UserRound, ShoppingBag, Stethoscope, BarChart2 } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { toast } from "@/hooks/use-toast";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import MoodSelector, { MoodType, getMoodIcon, getMoodLabel } from "@/components/period/MoodSelector";
 import DoctorConsultation from "@/components/doctor/DoctorConsultation";
@@ -292,14 +289,16 @@ export default function Dashboard() {
                     },
                   }}
                   components={{
-                    DayContent: ({ day, date }) => {
+                    DayContent: ({ date }) => {
+                      const dateNumber = date.getDate();
+                      
                       if (isPeriodDay(date)) {
                         const mood = getMoodForDay(date);
                         const symptoms = getSymptomsForDay(date);
                         
                         return (
                           <div className="flex flex-col items-center">
-                            <div>{day}</div>
+                            <div>{dateNumber}</div>
                             {mood && (
                               <div className="mt-1">
                                 {getMoodIcon(mood, 12)}
@@ -311,7 +310,7 @@ export default function Dashboard() {
                           </div>
                         );
                       }
-                      return day;
+                      return dateNumber;
                     }
                   }}
                   onDayClick={handleDayClick}
@@ -459,7 +458,7 @@ export default function Dashboard() {
                       {newStartDate ? format(newStartDate, "PPP") : <span>Pick a date</span>}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={newStartDate}
@@ -487,7 +486,7 @@ export default function Dashboard() {
                       {newEndDate ? format(newEndDate, "PPP") : <span>Pick a date (optional)</span>}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={newEndDate}
