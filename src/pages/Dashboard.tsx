@@ -290,16 +290,16 @@ export default function Dashboard() {
         >
           <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="period" className="text-femme-burgundy data-[state=active]:bg-femme-pink data-[state=active]:text-white">
-              Period
+              {t("period.tracker")}
             </TabsTrigger>
             <TabsTrigger value="health" className="text-femme-burgundy data-[state=active]:bg-femme-pink data-[state=active]:text-white">
-              Health
+              {t("health.waterIntake").split(" ")[0]}
             </TabsTrigger>
             <TabsTrigger value="insights" className="text-femme-burgundy data-[state=active]:bg-femme-pink data-[state=active]:text-white">
-              Insights
+              {t("period.cycle").split(" ")[0]}
             </TabsTrigger>
             <TabsTrigger value="medical" className="text-femme-burgundy data-[state=active]:bg-femme-pink data-[state=active]:text-white">
-              Medical
+              {t("doctor.appointment")}
             </TabsTrigger>
           </TabsList>
           
@@ -309,7 +309,7 @@ export default function Dashboard() {
                 <Card className="shadow-lg border-femme-taupe border-opacity-50">
                   <CardHeader>
                     <div className="flex justify-between items-center">
-                      <CardTitle className="text-femme-burgundy text-xl">Period Calendar</CardTitle>
+                      <CardTitle className="text-femme-burgundy text-xl">{t("period.tracker")}</CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent className="flex justify-center">
@@ -358,7 +358,7 @@ export default function Dashboard() {
                   <CardFooter className="flex justify-between flex-wrap gap-2">
                     <div className="flex gap-2 items-center text-sm text-femme-burgundy/70">
                       <div className="h-3 w-3 rounded-full bg-femme-pink"></div>
-                      <span>Period days</span>
+                      <span>{t("period.tracker").split(" ")[0]}</span>
                     </div>
                     <div className="flex gap-2">
                       <Button 
@@ -370,7 +370,7 @@ export default function Dashboard() {
                           handleSymptomTracking(today);
                         }}
                       >
-                        Track Symptoms
+                        {t("period.symptoms")}
                       </Button>
                     </div>
                   </CardFooter>
@@ -387,10 +387,10 @@ export default function Dashboard() {
                     <div className="p-4 flex justify-between items-center cursor-pointer hover:bg-femme-pink-light/10">
                       <div className="flex items-center gap-2">
                         <BarChart2 className="h-5 w-5 text-femme-burgundy" />
-                        <h3 className="text-femme-burgundy text-xl font-medium">Period Analytics</h3>
+                        <h3 className="text-femme-burgundy text-xl font-medium">{t("period.cycle")}</h3>
                       </div>
                       <Button variant="ghost" size="sm">
-                        {isStatsOpen ? "Hide" : "Show"}
+                        {isStatsOpen ? t("language.changed").split(" ")[0] : t("language.select").split(" ")[0]}
                       </Button>
                     </div>
                   </CollapsibleTrigger>
@@ -403,13 +403,13 @@ export default function Dashboard() {
               <div className="space-y-6">
                 <Card className="shadow-lg border-femme-taupe border-opacity-50">
                   <CardHeader>
-                    <CardTitle className="text-femme-burgundy text-xl">Current Cycle</CardTitle>
+                    <CardTitle className="text-femme-burgundy text-xl">{t("period.cycle")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {getCurrentCycle() ? (
                       <div className="space-y-4">
                         <div>
-                          <h3 className="font-medium text-femme-burgundy mb-2">Period Dates</h3>
+                          <h3 className="font-medium text-femme-burgundy mb-2">{t("period.tracker")}</h3>
                           <div className="flex items-center gap-2 text-femme-burgundy/70">
                             <CalendarDays className="h-5 w-5 text-femme-burgundy" />
                             <span>
@@ -421,14 +421,14 @@ export default function Dashboard() {
                           </div>
                           {getCurrentCycle()!.endDate && (
                             <div className="mt-1 text-femme-burgundy/70">
-                              Duration: {differenceInDays(getCurrentCycle()!.endDate!, getCurrentCycle()!.startDate) + 1} days
+                              {t("period.track")}: {differenceInDays(getCurrentCycle()!.endDate!, getCurrentCycle()!.startDate) + 1} days
                             </div>
                           )}
                         </div>
 
                         {getCurrentCycle()!.notes && (
                           <div>
-                            <h3 className="font-medium text-femme-burgundy mb-2">Notes</h3>
+                            <h3 className="font-medium text-femme-burgundy mb-2">{t("profile.updateSuccess").split(" ")[0]}</h3>
                             <div className="text-femme-burgundy/70 italic bg-femme-pink-light/20 p-3 rounded">
                               {getCurrentCycle()!.notes}
                             </div>
@@ -437,18 +437,18 @@ export default function Dashboard() {
 
                         <div>
                           <div className="flex justify-between items-center mb-2">
-                            <h3 className="font-medium text-femme-burgundy">Track Symptoms</h3>
+                            <h3 className="font-medium text-femme-burgundy">{t("period.symptoms")}</h3>
                             <Button 
                               variant="outline" 
                               size="sm"
                               onClick={() => handleSymptomTracking(new Date())}
                               className="text-xs"
                             >
-                              Add Today
+                              {t("period.track")}
                             </Button>
                           </div>
                           <div className="text-sm text-femme-burgundy/70 mb-2">
-                            Log your symptoms to track patterns during your cycle
+                            {t("period.tracker")}
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {["cramps", "headache", "bloating", "fatigue", "acne", "cravings"].map((symptom) => (
@@ -465,13 +465,13 @@ export default function Dashboard() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <p className="text-femme-burgundy/70 mb-4">No periods logged yet</p>
+                        <p className="text-femme-burgundy/70 mb-4">{t("period.tracker")}</p>
                         <Button 
                           onClick={() => setShowAddPeriodDialog(true)} 
                           className="bg-femme-pink hover:bg-femme-pink/90"
                         >
                           <Plus className="h-4 w-4 mr-2" />
-                          Add Your First Period
+                          {t("period.track")}
                         </Button>
                       </div>
                     )}
@@ -508,10 +508,10 @@ export default function Dashboard() {
                     <div className="p-4 flex justify-between items-center cursor-pointer hover:bg-femme-pink-light/10">
                       <div className="flex items-center gap-2">
                         <BarChart2 className="h-5 w-5 text-femme-burgundy" />
-                        <h3 className="text-femme-burgundy text-xl font-medium">Period Analytics</h3>
+                        <h3 className="text-femme-burgundy text-xl font-medium">{t("period.cycle")}</h3>
                       </div>
                       <Button variant="ghost" size="sm">
-                        Toggle
+                        {t("language.select").split(" ")[0]}
                       </Button>
                     </div>
                   </CollapsibleTrigger>
@@ -536,14 +536,14 @@ export default function Dashboard() {
                   <CardHeader>
                     <CardTitle className="text-femme-burgundy flex items-center gap-2">
                       <Stethoscope className="h-5 w-5 text-femme-burgundy" />
-                      Medical Records
+                      {t("doctor.appointment")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-center py-8">
-                      <p className="text-femme-burgundy/70 mb-4">Coming soon!</p>
+                      <p className="text-femme-burgundy/70 mb-4">{t("doctor.location")}</p>
                       <p className="text-sm text-femme-burgundy/60">
-                        Medical records and doctor appointment management will be available in the next update.
+                        {t("doctor.findNearby")}
                       </p>
                     </div>
                   </CardContent>
@@ -558,15 +558,15 @@ export default function Dashboard() {
       <Dialog open={showAddPeriodDialog} onOpenChange={setShowAddPeriodDialog}>
         <DialogContent className="sm:max-w-[450px]">
           <DialogHeader>
-            <DialogTitle>Add Period</DialogTitle>
+            <DialogTitle>{t("period.track")}</DialogTitle>
             <DialogDescription>
-              Log your period days to track your cycle.
+              {t("period.tracker")}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <label htmlFor="start-date" className="text-right text-femme-burgundy">
-                Start Date
+                {t("doctor.schedule")}
               </label>
               <div className="col-span-3">
                 <Popover>
@@ -578,7 +578,7 @@ export default function Dashboard() {
                       }`}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {newStartDate ? format(newStartDate, "PPP") : <span>Pick a date</span>}
+                      {newStartDate ? format(newStartDate, "PPP") : <span>{t("language.select")}</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -595,7 +595,7 @@ export default function Dashboard() {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <label htmlFor="end-date" className="text-right text-femme-burgundy">
-                End Date
+                {t("doctor.location")}
               </label>
               <div className="col-span-3">
                 <Popover>
@@ -607,7 +607,7 @@ export default function Dashboard() {
                       }`}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {newEndDate ? format(newEndDate, "PPP") : <span>Pick a date (optional)</span>}
+                      {newEndDate ? format(newEndDate, "PPP") : <span>{t("language.select")}</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -627,12 +627,12 @@ export default function Dashboard() {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <label htmlFor="notes" className="text-right text-femme-burgundy">
-                Notes
+                {t("profile.updateSuccess").split(" ")[0]}
               </label>
               <Textarea
                 id="notes"
                 className="col-span-3"
-                placeholder="Add any notes about this period..."
+                placeholder={t("period.track")}
                 value={newNotes}
                 onChange={(e) => setNewNotes(e.target.value)}
               />
@@ -640,10 +640,10 @@ export default function Dashboard() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddPeriodDialog(false)}>
-              Cancel
+              {t("auth.login")}
             </Button>
             <Button type="submit" onClick={addNewPeriod}>
-              Save
+              {t("profile.save").split(" ")[0]}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -655,19 +655,19 @@ export default function Dashboard() {
           <DialogHeader>
             <DialogTitle>
               {selectedDayForMood 
-                ? `How are you feeling on ${format(selectedDayForMood.date, "MMMM d, yyyy")}?`
-                : "Track Your Mood"}
+                ? `${t("period.mood")} ${format(selectedDayForMood.date, "MMMM d, yyyy")}?`
+                : t("period.mood")}
             </DialogTitle>
             <DialogDescription>
-              Select your mood for this day.
+              {t("language.select")}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <MoodSelector selectedMood={selectedMood} onMoodSelect={setSelectedMood} />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowMoodDialog(false)}>Cancel</Button>
-            <Button onClick={saveMoodForDay}>Save Mood</Button>
+            <Button variant="outline" onClick={() => setShowMoodDialog(false)}>{t("auth.login")}</Button>
+            <Button onClick={saveMoodForDay}>{t("profile.save").split(" ")[0]}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

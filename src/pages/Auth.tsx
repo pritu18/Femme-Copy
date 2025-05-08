@@ -9,12 +9,14 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import { SignupForm } from "@/components/auth/SignupForm";
 import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function Auth() {
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const { t } = useTranslation();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -29,7 +31,7 @@ export default function Auth() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-femme-beige to-femme-pink-light">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-femme-burgundy mx-auto mb-4" />
-          <p className="text-femme-burgundy">Loading...</p>
+          <p className="text-femme-burgundy">{t("language.changed")}</p>
         </div>
       </div>
     );
@@ -39,14 +41,14 @@ export default function Auth() {
     return (
       <AuthLayout>
         <AuthCard
-          title="Reset Password"
-          description="We'll send you instructions to reset your password"
+          title={t("auth.forgotPassword")}
+          description={t("period.tracker")}
           footer={
             <button
               onClick={() => setIsForgotPassword(false)}
               className="text-sm text-femme-burgundy hover:underline"
             >
-              Back to login
+              {t("auth.login")}
             </button>
           }
         >
@@ -61,8 +63,8 @@ export default function Auth() {
   return (
     <AuthLayout>
       <AuthCard
-        title="Welcome to Femme"
-        description="Your personal cycle companion"
+        title={`${t("app.hello")} ${t("app.name")}`}
+        description={t("app.tagline")}
       >
         <Tabs 
           defaultValue="login" 
@@ -71,8 +73,8 @@ export default function Auth() {
           className="w-full"
         >
           <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="login">Log In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsTrigger value="login">{t("auth.login")}</TabsTrigger>
+            <TabsTrigger value="signup">{t("auth.signup")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="login">

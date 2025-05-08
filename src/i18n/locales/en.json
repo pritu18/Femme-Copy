@@ -1,3 +1,4 @@
+
 {
   "app": {
     "name": "Femme",
@@ -34,7 +35,27 @@
     "predictions": "Cycle Predictions",
     "symptoms": "Track Symptoms",
     "mood": "Track Mood",
-    "track": "Track Period"
+    "track": "Track Period",
+    "calendar": "Period Calendar",
+    "currentCycle": "Current Cycle",
+    "periodDates": "Period Dates",
+    "duration": "Duration",
+    "noPeriodsLogged": "No periods logged yet",
+    "addFirstPeriod": "Add Your First Period",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "optional": "optional",
+    "notes": "Notes",
+    "periodNotes": "Add any notes about this period...",
+    "logPeriod": "Log your period days to track your cycle.",
+    "periodLogged": "Your period has been recorded",
+    "addMood": "How are you feeling?",
+    "selectMood": "Select your mood for this day.",
+    "feeling": "How are you feeling on",
+    "trackSymptoms": "Log your symptoms to track patterns during your cycle",
+    "analytics": "Period Analytics",
+    "show": "Show",
+    "hide": "Hide"
   },
   "health": {
     "waterIntake": "Water Intake Tracker",
@@ -45,7 +66,10 @@
     "findNearby": "Find a Gynecologist Near You",
     "schedule": "Schedule",
     "appointment": "Appointment",
-    "location": "Location"
+    "location": "Location",
+    "medicalRecords": "Medical Records",
+    "comingSoon": "Coming soon!",
+    "nextUpdate": "Medical records and doctor appointment management will be available in the next update."
   },
   "language": {
     "select": "Select Language",
@@ -54,5 +78,19 @@
     "ta": "தமிழ் (Tamil)",
     "changed": "Language Changed",
     "changedDescription": "The application language has been updated."
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading",
+    "pickDate": "Pick a date",
+    "ongoing": "ongoing",
+    "days": "days",
+    "today": "Today",
+    "add": "Add",
+    "toggle": "Toggle",
+    "insights": "Insights",
+    "health": "Health",
+    "medical": "Medical"
   }
 }
