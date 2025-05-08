@@ -435,6 +435,7 @@ export default function Dashboard() {
     return day?.symptoms || [];
   };
 
+  // Fix for function call error - update handleSymptomTracking to pass a Date
   const handleSymptomTracking = (date: Date) => {
     const day = getDayFromDate(date);
     if (day) {
@@ -882,83 +883,3 @@ export default function Dashboard() {
                   <PopoverTrigger asChild>
                     <Button
                       variant={"outline"}
-                      className={`w-full justify-start text-left font-normal ${
-                        !newEndDate && "text-muted-foreground"
-                      }`}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {newEndDate ? format(newEndDate, "PPP") : <span>{t("language.select")}</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={newEndDate}
-                      onSelect={setNewEndDate}
-                      disabled={(date) =>
-                        newStartDate ? date < newStartDate : date < new Date()
-                      }
-                      initialFocus
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="notes" className="text-right text-femme-burgundy">
-                {t("profile.updateSuccess").split(" ")[0]}
-              </label>
-              <Textarea
-                id="notes"
-                className="col-span-3"
-                placeholder="Any notes about this period"
-                value={newNotes}
-                onChange={(e) => setNewNotes(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddPeriodDialog(false)}>
-              {t("auth.cancel")}
-            </Button>
-            <Button type="submit" onClick={addNewPeriod}>
-              {t("profile.save").split(" ")[0]}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Mood Dialog */}
-      <Dialog open={showMoodDialog} onOpenChange={setShowMoodDialog}>
-        <DialogContent className="sm:max-w-[450px]">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedDayForMood 
-                ? `${t("period.mood")} ${format(selectedDayForMood.date, "MMMM d, yyyy")}?`
-                : t("period.mood")}
-            </DialogTitle>
-            <DialogDescription>
-              {t("language.select")}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <MoodSelector selectedMood={selectedMood} onMoodSelect={setSelectedMood} />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowMoodDialog(false)}>{t("auth.login")}</Button>
-            <Button onClick={saveMoodForDay}>{t("profile.save").split(" ")[0]}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Symptom Tracking Dialog */}
-      <SymptomTrackingDialog
-        open={showSymptomDialog}
-        onOpenChange={setShowSymptomDialog}
-        selectedDay={selectedDayForSymptoms}
-        onSave={saveSymptoms}
-      />
-    </div>
-  );
-}
