@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { format, differenceInDays, isSameDay, isWithinInterval, addDays } from "date-fns";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -84,6 +85,13 @@ interface WaterIntakeData {
   amount_ml: number;
   created_at: string;
   updated_at: string;
+}
+
+// Interface for symptom data from API
+interface SymptomDataType {
+  id: string; 
+  name: string;
+  count: number;
 }
 
 export default function Dashboard() {
@@ -217,7 +225,7 @@ export default function Dashboard() {
 
   const getCurrentCycle = () => {
     if (periodCycles.length === 0) return null;
-    return periodCycles[periodCycles.length - 1];
+    return periodCycles[0]; // First one since we're sorting by date descending
   };
 
   const addNewPeriod = async () => {
@@ -288,7 +296,7 @@ export default function Dashboard() {
         newCycle.days.push({ date: newStartDate });
       }
 
-      setPeriodCycles(prev => [...prev, newCycle]);
+      setPeriodCycles(prev => [newCycle, ...prev]);
       
       toast({
         title: "Period logged",
@@ -515,23 +523,6 @@ export default function Dashboard() {
     }
   };
 
-  const { data: cycleData, loading: cycleLoading } = useSupabaseData<CycleData>(
-    {
-      table: "orders", // Using "orders" as a placeholder since we don't have a cycles table yet
-      orderBy: { column: "created_at", ascending: false },
-      limit: 5
-    },
-    [user?.id] // Add user?.id as a dependency
-  );
-
-  const { data: symptomsData, loading: symptomsLoading } = useSupabaseData<SymptomData>(
-    {
-      table: "orders", // Using "orders" as a placeholder since we don't have a symptoms table yet
-      orderBy: { column: "created_at", ascending: false }
-    },
-    [user?.id] // Add user?.id as a dependency
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-femme-beige to-femme-pink-light">
       <header className="bg-white shadow-md py-4 sticky top-0 z-10">
@@ -694,19 +685,24 @@ export default function Dashboard() {
                     {getCurrentCycle() ? (
                       <div className="space-y-4">
                         <div>
-                          <h3 className="font-medium text-femme-burgundy mb-2">{t("period.tracker")}</h3>
+                          <h3 className="font-medium text-femme-burgundy mb-2">Period Information</h3>
                           <div className="flex items-center gap-2 text-femme-burgundy/70">
                             <CalendarDays className="h-5 w-5 text-femme-burgundy" />
                             <span>
-                              {format(getCurrentCycle()!.startDate, "MMMM d, yyyy")} 
-                              {getCurrentCycle()!.endDate 
-                                ? ` - ${format(getCurrentCycle()!.endDate, "MMMM d, yyyy")}` 
-                                : " (ongoing)"}
+                              <strong>Period Start Date:</strong> {format(getCurrentCycle()!.startDate, "MMMM d, yyyy")}
                             </span>
                           </div>
                           {getCurrentCycle()!.endDate && (
-                            <div className="mt-1 text-femme-burgundy/70">
-                              {t("period.track")}: {differenceInDays(getCurrentCycle()!.endDate!, getCurrentCycle()!.startDate) + 1} days
+                            <div className="flex items-center gap-2 mt-2 text-femme-burgundy/70">
+                              <CalendarDays className="h-5 w-5 text-femme-burgundy" />
+                              <span>
+                                <strong>Period End Date:</strong> {format(getCurrentCycle()!.endDate!, "MMMM d, yyyy")}
+                              </span>
+                            </div>
+                          )}
+                          {getCurrentCycle()!.endDate && (
+                            <div className="mt-2 text-femme-burgundy/70">
+                              <strong>Duration:</strong> {differenceInDays(getCurrentCycle()!.endDate!, getCurrentCycle()!.startDate) + 1} days
                             </div>
                           )}
                         </div>
@@ -843,15 +839,15 @@ export default function Dashboard() {
       <Dialog open={showAddPeriodDialog} onOpenChange={setShowAddPeriodDialog}>
         <DialogContent className="sm:max-w-[450px]">
           <DialogHeader>
-            <DialogTitle>{t("period.track")}</DialogTitle>
+            <DialogTitle>Add Period</DialogTitle>
             <DialogDescription>
-              {t("period.tracker")}
+              Enter your period details below
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <label htmlFor="start-date" className="text-right text-femme-burgundy">
-                {t("doctor.schedule")}
+                Period Start Date
               </label>
               <div className="col-span-3">
                 <Popover>
@@ -880,7 +876,7 @@ export default function Dashboard() {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <label htmlFor="end-date" className="text-right text-femme-burgundy">
-                {t("doctor.location")}
+                Period End Date
               </label>
               <div className="col-span-3">
                 <Popover>
@@ -917,7 +913,7 @@ export default function Dashboard() {
               <Textarea
                 id="notes"
                 className="col-span-3"
-                placeholder={t("period.track")}
+                placeholder="Any notes about this period"
                 value={newNotes}
                 onChange={(e) => setNewNotes(e.target.value)}
               />
@@ -967,5 +963,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-export default Dashboard;
