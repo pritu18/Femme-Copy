@@ -4,8 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { PostgrestError } from "@supabase/supabase-js";
 import { useAuth } from "@/contexts/AuthContext";
 
+// Define allowed table names explicitly based on our database
+type TableName = "profiles" | "orders";
+
 type FetchOptions = {
-  table: string;
+  table: TableName;
   column?: string;
   value?: any;
   select?: string;
@@ -31,8 +34,7 @@ export function useSupabaseData<T>(
     try {
       setLoading(true);
       
-      // Using the from method with any to bypass TypeScript's strict table name checking
-      // This allows dynamically specifying table names as strings
+      // Using the from method with the table name (now properly typed)
       let query = supabase.from(options.table).select(options.select || "*");
       
       if (options.column && options.value !== undefined) {
@@ -62,11 +64,11 @@ export function useSupabaseData<T>(
       setLoading(false);
     }
   }, [user, options.table, options.column, options.value, options.select, options.limit,
-     options.orderBy?.column, options.orderBy?.ascending]);
+     options.orderBy?.column, options.orderBy?.ascending, ...dependencies]);
   
   useEffect(() => {
     fetchData();
-  }, [fetchData, ...dependencies]);
+  }, [fetchData]);
 
   const updateData = useCallback(async (id: string, updates: Partial<T>) => {
     if (!user) return { data: null, error: { message: "User not authenticated" } as PostgrestError };

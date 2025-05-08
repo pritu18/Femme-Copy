@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarIcon, Plus, CalendarDays, UserRound, ShoppingBag, Stethoscope, BarChart2 } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import MoodSelector, { MoodType, getMoodIcon, getMoodLabel } from "@/components/period/MoodSelector";
 import DoctorConsultation from "@/components/doctor/DoctorConsultation";
@@ -24,7 +24,8 @@ import HealthInsights from "@/components/education/HealthInsights";
 import WeightTracker from "@/components/health/WeightTracker";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
-import { useSupabaseData } from "@/hooks/use-supabase-data";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSupabaseData } from "@/hooks/useSupabaseData";
 
 interface PeriodDay {
   date: Date;
@@ -40,8 +41,26 @@ interface PeriodCycle {
   days: PeriodDay[];
 }
 
+// Define interfaces for cycle and symptom data
+interface CycleData {
+  id: string;
+  user_id: string;
+  start_date: string;
+  end_date: string | null;
+  notes: string | null;
+}
+
+interface SymptomData {
+  id: string;
+  user_id: string;
+  date: string;
+  symptoms: string[];
+  notes: string | null;
+}
+
 export default function Dashboard() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [periodCycles, setPeriodCycles] = useState<PeriodCycle[]>([]);
   const [newStartDate, setNewStartDate] = useState<Date | undefined>(undefined);
   const [newEndDate, setNewEndDate] = useState<Date | undefined>(undefined);
@@ -250,23 +269,19 @@ export default function Dashboard() {
 
   const { data: cycleData, loading: cycleLoading } = useSupabaseData<CycleData>(
     {
-      table: "cycles",
-      column: "user_id",
-      value: user?.id,
-      orderBy: { column: "start_date", ascending: false },
+      table: "orders", // Using "orders" as a placeholder since we don't have a cycles table yet
+      orderBy: { column: "created_at", ascending: false },
       limit: 5
     },
-    [] // Add empty dependency array here
+    [user?.id] // Add user?.id as a dependency
   );
 
   const { data: symptomsData, loading: symptomsLoading } = useSupabaseData<SymptomData>(
     {
-      table: "symptoms",
-      column: "user_id",
-      value: user?.id,
-      orderBy: { column: "date", ascending: false }
+      table: "orders", // Using "orders" as a placeholder since we don't have a symptoms table yet
+      orderBy: { column: "created_at", ascending: false }
     },
-    [] // Add empty dependency array here
+    [user?.id] // Add user?.id as a dependency
   );
 
   return (

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, LogOut, Save, Camera } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
@@ -31,20 +31,20 @@ export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Use the enhanced useSupabaseData hook with empty dependency array
+  // Use the enhanced useSupabaseData hook with user?.id as a dependency
   const { 
     data: profiles, 
     loading: isLoading, 
     updateData, 
     insertData,
-    refreshData 
+    error
   } = useSupabaseData<ProfileData>(
     {
-      table: 'profiles',
-      column: 'id',
+      table: "profiles",
+      column: "id",
       value: user?.id
     },
-    [] // Empty dependency array to avoid infinite rerenders
+    [user?.id] // Add user?.id as a dependency
   );
   
   const profile = profiles?.[0] || null;
@@ -58,8 +58,22 @@ export default function Profile() {
     }
   }, [profile]);
 
+  // Log any errors for debugging
+  useEffect(() => {
+    if (error) {
+      console.error("Error fetching profile data:", error);
+    }
+  }, [error]);
+
   const handleSaveProfile = async () => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: t("auth.error", "Authentication Error"),
+        description: t("auth.notLoggedIn", "You must be logged in to update your profile"),
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsSaving(true);
     try {
@@ -70,22 +84,27 @@ export default function Profile() {
       };
 
       let result;
+      
       if (profile) {
         // Update existing profile
-        result = await updateData(user.id, updateData);
+        result = await supabase
+          .from("profiles")
+          .update(updateData)
+          .eq("id", user.id)
+          .select();
       } else {
         // Create new profile if doesn't exist
-        result = await insertData({
-          id: user.id,
-          ...updateData,
-          created_at: new Date().toISOString(),
-        });
+        result = await supabase
+          .from("profiles")
+          .insert({
+            id: user.id,
+            ...updateData,
+            created_at: new Date().toISOString(),
+          })
+          .select();
       }
 
       if (result.error) throw result.error;
-
-      // Refresh data to ensure UI is up to date
-      refreshData();
 
       toast({
         title: t("profile.updateSuccess", "Profile Updated"),
@@ -95,7 +114,7 @@ export default function Profile() {
       console.error("Error updating profile:", error);
       toast({
         title: t("profile.updateFailed", "Update Failed"),
-        description: t("profile.updateFailedMessage", "Failed to update your profile"),
+        description: error.message || t("profile.updateFailedMessage", "Failed to update your profile"),
         variant: "destructive",
       });
     } finally {
