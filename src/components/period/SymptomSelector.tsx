@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Droplets, Thermometer, Pill, Star, Activity, Coffee } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export type SymptomType = "cramps" | "headache" | "bloating" | "fatigue" | "acne" | "cravings" | undefined;
 
@@ -30,33 +31,35 @@ export const getSymptomIcon = (symptom: SymptomType, size = 20) => {
   }
 };
 
-export const getSymptomLabel = (symptom: SymptomType) => {
+export const getSymptomLabel = (symptom: SymptomType, t: any) => {
   switch (symptom) {
     case "cramps":
-      return "Cramps";
+      return t("symptoms.cramps", "Cramps");
     case "headache":
-      return "Headache";
+      return t("symptoms.headache", "Headache");
     case "bloating":
-      return "Bloating";
+      return t("symptoms.bloating", "Bloating");
     case "fatigue":
-      return "Fatigue";
+      return t("symptoms.fatigue", "Fatigue");
     case "acne":
-      return "Acne";
+      return t("symptoms.acne", "Acne");
     case "cravings":
-      return "Cravings";
+      return t("symptoms.cravings", "Cravings");
     default:
       return "";
   }
 };
 
 const SymptomSelector: React.FC<SymptomSelectorProps> = ({ selectedSymptoms, onSymptomToggle }) => {
+  const { t } = useTranslation();
+  
   const symptoms: { type: SymptomType; label: string }[] = [
-    { type: "cramps", label: "Cramps" },
-    { type: "headache", label: "Headache" },
-    { type: "bloating", label: "Bloating" },
-    { type: "fatigue", label: "Fatigue" },
-    { type: "acne", label: "Acne" },
-    { type: "cravings", label: "Cravings" },
+    { type: "cramps", label: t("symptoms.cramps", "Cramps") },
+    { type: "headache", label: t("symptoms.headache", "Headache") },
+    { type: "bloating", label: t("symptoms.bloating", "Bloating") },
+    { type: "fatigue", label: t("symptoms.fatigue", "Fatigue") },
+    { type: "acne", label: t("symptoms.acne", "Acne") },
+    { type: "cravings", label: t("symptoms.cravings", "Cravings") },
   ];
 
   return (

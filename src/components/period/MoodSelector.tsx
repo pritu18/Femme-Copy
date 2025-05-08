@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Smile, Meh, Frown, Heart, Star, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 export type MoodType = "happy" | "neutral" | "sad" | "loved" | "energetic" | "tired" | undefined;
 
@@ -30,33 +31,35 @@ export const getMoodIcon = (mood: MoodType, size = 20) => {
   }
 };
 
-export const getMoodLabel = (mood: MoodType) => {
+export const getMoodLabel = (mood: MoodType, t: any) => {
   switch (mood) {
     case "happy":
-      return "Happy";
+      return t("mood.happy", "Happy");
     case "neutral":
-      return "Neutral";
+      return t("mood.neutral", "Neutral");
     case "sad":
-      return "Sad";
+      return t("mood.sad", "Sad");
     case "loved":
-      return "Loved";
+      return t("mood.loved", "Loved");
     case "energetic":
-      return "Energetic";
+      return t("mood.energetic", "Energetic");
     case "tired":
-      return "Tired";
+      return t("mood.tired", "Tired");
     default:
-      return "Not set";
+      return t("mood.notSet", "Not set");
   }
 };
 
 const MoodSelector: React.FC<MoodSelectorProps> = ({ selectedMood, onMoodSelect }) => {
+  const { t } = useTranslation();
+  
   const moods: { type: MoodType; label: string }[] = [
-    { type: "happy", label: "Happy" },
-    { type: "neutral", label: "Neutral" },
-    { type: "sad", label: "Sad" },
-    { type: "loved", label: "Loved" },
-    { type: "energetic", label: "Energetic" },
-    { type: "tired", label: "Tired" },
+    { type: "happy", label: t("mood.happy", "Happy") },
+    { type: "neutral", label: t("mood.neutral", "Neutral") },
+    { type: "sad", label: t("mood.sad", "Sad") },
+    { type: "loved", label: t("mood.loved", "Loved") },
+    { type: "energetic", label: t("mood.energetic", "Energetic") },
+    { type: "tired", label: t("mood.tired", "Tired") },
   ];
 
   return (

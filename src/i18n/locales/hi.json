@@ -53,9 +53,34 @@
     "selectMood": "इस दिन के लिए अपना मूड चुनें।",
     "feeling": "आप कैसा महसूस कर रहे हैं",
     "trackSymptoms": "अपने चक्र के दौरान पैटर्न को ट्रैक करने के लिए अपने लक्षण लॉग करें",
+    "selectSymptoms": "आज आप जिन लक्षणों का अनुभव कर रहे हैं उन्हें चुनें।",
     "analytics": "पीरियड एनालिटिक्स",
     "show": "दिखाएं",
-    "hide": "छिपाएं"
+    "hide": "छिपाएं",
+    "nextPeriod": "अगला पीरियड",
+    "expected": "अपेक्षित",
+    "estimatedDuration": "अनुमानित अवधि",
+    "fertileWindow": "उर्वर विंडो",
+    "cycleStats": "चक्र आंकड़े",
+    "averageCycleLength": "औसत चक्र अवधि",
+    "trackMorePeriods": "अधिक सटीक भविष्यवाणियों के लिए अधिक अवधि ट्रैक करें"
+  },
+  "mood": {
+    "happy": "खुश",
+    "neutral": "तटस्थ",
+    "sad": "उदास",
+    "loved": "प्यारा",
+    "energetic": "ऊर्जावान",
+    "tired": "थका हुआ",
+    "notSet": "सेट नहीं"
+  },
+  "symptoms": {
+    "cramps": "ऐंठन",
+    "headache": "सिरदर्द",
+    "bloating": "पेट फूलना",
+    "fatigue": "थकान",
+    "acne": "मुंहासे",
+    "cravings": "लालसा"
   },
   "health": {
     "waterIntake": "पानी का सेवन ट्रैकर",

@@ -27,7 +27,9 @@ export function useSupabaseData<T>(
       try {
         setLoading(true);
         
-        let query = supabase.from(options.table).select(options.select || "*");
+        // Using the from method with any to bypass TypeScript's strict table name checking
+        // This allows dynamically specifying table names as strings
+        let query = supabase.from(options.table as any).select(options.select || "*");
         
         if (options.column && options.value !== undefined) {
           query = query.eq(options.column, options.value);

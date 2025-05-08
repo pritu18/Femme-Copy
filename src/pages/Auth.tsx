@@ -31,7 +31,7 @@ export default function Auth() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-femme-beige to-femme-pink-light">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-femme-burgundy mx-auto mb-4" />
-          <p className="text-femme-burgundy">{t("language.changed")}</p>
+          <p className="text-femme-burgundy">{t("common.loading")}</p>
         </div>
       </div>
     );

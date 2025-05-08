@@ -3,6 +3,7 @@ import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { format, addDays } from "date-fns";
 import { Calendar, CalendarCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface CyclePredictionsProps {
   periodCycles: {
@@ -13,6 +14,8 @@ interface CyclePredictionsProps {
 }
 
 const CyclePredictions: React.FC<CyclePredictionsProps> = ({ periodCycles }) => {
+  const { t } = useTranslation();
+  
   // Calculate average cycle length
   const calculateAvgCycleLength = (): number => {
     if (periodCycles.length < 2) return 28; // Default to 28 if not enough data
@@ -81,24 +84,24 @@ const CyclePredictions: React.FC<CyclePredictionsProps> = ({ periodCycles }) => 
   return (
     <Card className="shadow-lg border-femme-taupe border-opacity-50">
       <CardHeader>
-        <CardTitle className="text-femme-burgundy text-xl">Cycle Predictions</CardTitle>
+        <CardTitle className="text-femme-burgundy text-xl">{t("period.predictions")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div>
-            <h3 className="font-medium text-femme-burgundy mb-2">Next Period</h3>
+            <h3 className="font-medium text-femme-burgundy mb-2">{t("period.nextPeriod", "Next Period")}</h3>
             <div className="flex items-center gap-2 text-femme-burgundy/70">
               <Calendar className="h-5 w-5 text-femme-pink" />
-              <span>Expected: {format(predictions.startDate, "MMMM d, yyyy")}</span>
+              <span>{t("period.expected", "Expected")}: {format(predictions.startDate, "MMMM d, yyyy")}</span>
             </div>
             <div className="flex items-center gap-2 text-femme-burgundy/70">
               <Calendar className="h-5 w-5 text-femme-pink" />
-              <span>Estimated Duration: {calculateAvgPeriodDuration()} days</span>
+              <span>{t("period.estimatedDuration", "Estimated Duration")}: {calculateAvgPeriodDuration()} {t("common.days")}</span>
             </div>
           </div>
           
           <div>
-            <h3 className="font-medium text-femme-burgundy mb-2">Fertile Window</h3>
+            <h3 className="font-medium text-femme-burgundy mb-2">{t("period.fertileWindow", "Fertile Window")}</h3>
             <div className="flex items-center gap-2 text-femme-burgundy/70">
               <CalendarCheck className="h-5 w-5 text-green-500" />
               <span>{format(predictions.fertile.start, "MMMM d")} - {format(predictions.fertile.end, "MMMM d, yyyy")}</span>
@@ -106,16 +109,16 @@ const CyclePredictions: React.FC<CyclePredictionsProps> = ({ periodCycles }) => 
           </div>
           
           <div>
-            <h3 className="font-medium text-femme-burgundy mb-2">Cycle Stats</h3>
+            <h3 className="font-medium text-femme-burgundy mb-2">{t("period.cycleStats", "Cycle Stats")}</h3>
             <div className="flex items-center gap-2 text-femme-burgundy/70">
               <Calendar className="h-5 w-5 text-femme-burgundy" />
-              <span>Average Cycle Length: {calculateAvgCycleLength()} days</span>
+              <span>{t("period.averageCycleLength", "Average Cycle Length")}: {calculateAvgCycleLength()} {t("common.days")}</span>
             </div>
           </div>
           
           {periodCycles.length < 2 && (
             <div className="text-sm text-femme-pink/80 italic mt-2">
-              Track more periods for more accurate predictions
+              {t("period.trackMorePeriods", "Track more periods for more accurate predictions")}
             </div>
           )}
         </div>

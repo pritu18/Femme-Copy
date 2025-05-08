@@ -10,6 +10,7 @@ import { Logo } from "@/components/common/Logo";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 
 interface ProfileData {
   id: string;
@@ -21,6 +22,7 @@ interface ProfileData {
 }
 
 export default function Profile() {
+  const { t } = useTranslation();
   const { user, signOut, loading } = useAuth();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,8 +60,8 @@ export default function Profile() {
       } catch (error) {
         console.error("Error fetching profile:", error);
         toast({
-          title: "Failed to load profile",
-          description: "Please try again later.",
+          title: t("profile.updateFailed"),
+          description: t("profile.updateFailed"),
           variant: "destructive",
         });
       } finally {
@@ -68,7 +70,7 @@ export default function Profile() {
     };
 
     fetchProfile();
-  }, [user]);
+  }, [user, toast, t]);
 
   const handleSaveProfile = async () => {
     if (!user) return;
@@ -89,8 +91,8 @@ export default function Profile() {
       }
 
       toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
+        title: t("profile.updateSuccess"),
+        description: t("profile.updateSuccess"),
       });
       
       // Update the profile state
@@ -104,8 +106,8 @@ export default function Profile() {
     } catch (error: any) {
       console.error("Error updating profile:", error);
       toast({
-        title: "Update failed",
-        description: "Failed to update your profile. Please try again.",
+        title: t("profile.updateFailed"),
+        description: t("profile.updateFailed"),
         variant: "destructive",
       });
     } finally {
@@ -132,14 +134,14 @@ export default function Profile() {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <Logo className="h-10" />
           <Button variant="outline" onClick={() => navigate('/dashboard')} className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">
-            Return to Dashboard
+            {t("nav.dashboard")}
           </Button>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-2xl font-bold text-femme-burgundy mb-6">Your Profile</h1>
+          <h1 className="text-2xl font-bold text-femme-burgundy mb-6">{t("profile.title")}</h1>
 
           {isLoading ? (
             <div className="flex justify-center my-8">
@@ -169,7 +171,7 @@ export default function Profile() {
                   </div>
                   <div>
                     <CardTitle className="text-femme-burgundy text-xl mb-1">
-                      {firstName && lastName ? `${firstName} ${lastName}` : "Your Profile"}
+                      {firstName && lastName ? `${firstName} ${lastName}` : t("profile.title")}
                     </CardTitle>
                     <CardDescription>{user?.email}</CardDescription>
                   </div>
@@ -178,7 +180,7 @@ export default function Profile() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label htmlFor="firstName" className="text-sm font-medium text-femme-burgundy">
-                    First Name
+                    {t("profile.firstName")}
                   </label>
                   <Input
                     id="firstName"
@@ -189,7 +191,7 @@ export default function Profile() {
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="lastName" className="text-sm font-medium text-femme-burgundy">
-                    Last Name
+                    {t("profile.lastName")}
                   </label>
                   <Input
                     id="lastName"
@@ -200,7 +202,7 @@ export default function Profile() {
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="email" className="text-sm font-medium text-femme-burgundy">
-                    Email
+                    {t("auth.email")}
                   </label>
                   <Input
                     id="email"
@@ -217,7 +219,7 @@ export default function Profile() {
                   onClick={handleLogout}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
+                  {t("nav.logout")}
                 </Button>
                 <Button 
                   onClick={handleSaveProfile}
@@ -227,12 +229,12 @@ export default function Profile() {
                   {isSaving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
+                      {t("common.loading")}
                     </>
                   ) : (
                     <>
                       <Save className="mr-2 h-4 w-4" />
-                      Save Changes
+                      {t("profile.save")}
                     </>
                   )}
                 </Button>

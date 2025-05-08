@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Textarea } from "@/components/ui/textarea";
 import SymptomSelector, { SymptomType } from "./SymptomSelector";
+import { useTranslation } from "react-i18next";
 
 interface SymptomTrackingDialogProps {
   open: boolean;
@@ -23,6 +24,7 @@ const SymptomTrackingDialog: React.FC<SymptomTrackingDialogProps> = ({
   selectedDay,
   onSave,
 }) => {
+  const { t } = useTranslation();
   const [selectedSymptoms, setSelectedSymptoms] = useState<SymptomType[]>([]);
   const [notes, setNotes] = useState("");
 
@@ -55,11 +57,11 @@ const SymptomTrackingDialog: React.FC<SymptomTrackingDialogProps> = ({
         <DialogHeader>
           <DialogTitle>
             {selectedDay 
-              ? `Track Symptoms for ${format(selectedDay.date, "MMMM d, yyyy")}`
-              : "Track Your Symptoms"}
+              ? t("period.trackSymptoms") + ` ${format(selectedDay.date, "MMMM d, yyyy")}`
+              : t("period.trackSymptoms")}
           </DialogTitle>
           <DialogDescription>
-            Select any symptoms you're experiencing today.
+            {t("period.selectSymptoms")}
           </DialogDescription>
         </DialogHeader>
         
@@ -70,10 +72,10 @@ const SymptomTrackingDialog: React.FC<SymptomTrackingDialogProps> = ({
           />
           
           <div className="mt-4">
-            <label className="text-sm font-medium text-femme-burgundy" htmlFor="symptom-notes">Notes (Optional)</label>
+            <label className="text-sm font-medium text-femme-burgundy" htmlFor="symptom-notes">{t("period.notes")} ({t("period.optional")})</label>
             <Textarea 
               id="symptom-notes"
-              placeholder="Add notes about your symptoms or how you're feeling..."
+              placeholder={t("period.periodNotes")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="mt-2"
@@ -82,8 +84,8 @@ const SymptomTrackingDialog: React.FC<SymptomTrackingDialogProps> = ({
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave}>Save Symptoms</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t("common.cancel")}</Button>
+          <Button onClick={handleSave}>{t("common.save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

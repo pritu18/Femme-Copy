@@ -53,9 +53,34 @@
     "selectMood": "Select your mood for this day.",
     "feeling": "How are you feeling on",
     "trackSymptoms": "Log your symptoms to track patterns during your cycle",
+    "selectSymptoms": "Select any symptoms you're experiencing today.",
     "analytics": "Period Analytics",
     "show": "Show",
-    "hide": "Hide"
+    "hide": "Hide",
+    "nextPeriod": "Next Period",
+    "expected": "Expected",
+    "estimatedDuration": "Estimated Duration",
+    "fertileWindow": "Fertile Window",
+    "cycleStats": "Cycle Stats",
+    "averageCycleLength": "Average Cycle Length",
+    "trackMorePeriods": "Track more periods for more accurate predictions"
+  },
+  "mood": {
+    "happy": "Happy",
+    "neutral": "Neutral",
+    "sad": "Sad",
+    "loved": "Loved",
+    "energetic": "Energetic",
+    "tired": "Tired",
+    "notSet": "Not set"
+  },
+  "symptoms": {
+    "cramps": "Cramps",
+    "headache": "Headache",
+    "bloating": "Bloating",
+    "fatigue": "Fatigue",
+    "acne": "Acne",
+    "cravings": "Cravings"
   },
   "health": {
     "waterIntake": "Water Intake Tracker",
