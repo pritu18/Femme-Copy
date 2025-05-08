@@ -23,14 +23,17 @@ export function useSupabaseData<T>(
   const { user } = useAuth();
 
   const fetchData = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     
     try {
       setLoading(true);
       
       // Using the from method with any to bypass TypeScript's strict table name checking
       // This allows dynamically specifying table names as strings
-      let query = supabase.from(options.table as any).select(options.select || "*");
+      let query = supabase.from(options.table).select(options.select || "*");
       
       if (options.column && options.value !== undefined) {
         query = query.eq(options.column, options.value);
@@ -58,21 +61,23 @@ export function useSupabaseData<T>(
     } finally {
       setLoading(false);
     }
-  }, [user, options]);
+  }, [user, options.table, options.column, options.value, options.select, options.limit,
+     options.orderBy?.column, options.orderBy?.ascending]);
   
   useEffect(() => {
     fetchData();
   }, [fetchData, ...dependencies]);
 
   const updateData = useCallback(async (id: string, updates: Partial<T>) => {
-    if (!user) return { error: { message: "User not authenticated" } };
+    if (!user) return { data: null, error: { message: "User not authenticated" } as PostgrestError };
     
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from(options.table as any)
+        .from(options.table)
         .update(updates)
-        .eq('id', id);
+        .eq('id', id)
+        .select();
         
       if (error) throw error;
       
@@ -89,13 +94,14 @@ export function useSupabaseData<T>(
   }, [user, options.table, fetchData]);
 
   const insertData = useCallback(async (newData: Partial<T>) => {
-    if (!user) return { error: { message: "User not authenticated" } };
+    if (!user) return { data: null, error: { message: "User not authenticated" } as PostgrestError };
     
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from(options.table as any)
-        .insert(newData);
+        .from(options.table)
+        .insert(newData)
+        .select();
         
       if (error) throw error;
       

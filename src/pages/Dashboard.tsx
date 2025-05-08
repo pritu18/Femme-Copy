@@ -24,6 +24,7 @@ import HealthInsights from "@/components/education/HealthInsights";
 import WeightTracker from "@/components/health/WeightTracker";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import { useSupabaseData } from "@/hooks/use-supabase-data";
 
 interface PeriodDay {
   date: Date;
@@ -246,6 +247,27 @@ export default function Dashboard() {
     });
     setShowSymptomDialog(false);
   };
+
+  const { data: cycleData, loading: cycleLoading } = useSupabaseData<CycleData>(
+    {
+      table: "cycles",
+      column: "user_id",
+      value: user?.id,
+      orderBy: { column: "start_date", ascending: false },
+      limit: 5
+    },
+    [] // Add empty dependency array here
+  );
+
+  const { data: symptomsData, loading: symptomsLoading } = useSupabaseData<SymptomData>(
+    {
+      table: "symptoms",
+      column: "user_id",
+      value: user?.id,
+      orderBy: { column: "date", ascending: false }
+    },
+    [] // Add empty dependency array here
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-femme-beige to-femme-pink-light">
@@ -682,3 +704,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+export default Dashboard;

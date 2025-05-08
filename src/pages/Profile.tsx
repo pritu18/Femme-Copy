@@ -31,19 +31,20 @@ export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Use the enhanced useSupabaseData hook
+  // Use the enhanced useSupabaseData hook with empty dependency array
   const { 
     data: profiles, 
     loading: isLoading, 
     updateData, 
-    insertData 
+    insertData,
+    refreshData 
   } = useSupabaseData<ProfileData>(
     {
       table: 'profiles',
       column: 'id',
       value: user?.id
     },
-    [user?.id]
+    [] // Empty dependency array to avoid infinite rerenders
   );
   
   const profile = profiles?.[0] || null;
@@ -62,37 +63,38 @@ export default function Profile() {
 
     setIsSaving(true);
     try {
-      // Check if profile exists
+      const updateData = {
+        first_name: firstName,
+        last_name: lastName,
+        updated_at: new Date().toISOString(),
+      };
+
+      let result;
       if (profile) {
         // Update existing profile
-        const { error } = await updateData(user.id, {
-          first_name: firstName,
-          last_name: lastName,
-          updated_at: new Date().toISOString(),
-        });
-
-        if (error) throw error;
+        result = await updateData(user.id, updateData);
       } else {
         // Create new profile if doesn't exist
-        const { error } = await insertData({
+        result = await insertData({
           id: user.id,
-          first_name: firstName,
-          last_name: lastName,
+          ...updateData,
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
         });
-
-        if (error) throw error;
       }
 
+      if (result.error) throw result.error;
+
+      // Refresh data to ensure UI is up to date
+      refreshData();
+
       toast({
-        title: t("profile.updateSuccess"),
+        title: t("profile.updateSuccess", "Profile Updated"),
         description: t("profile.updateSuccessMessage", "Your profile has been updated successfully"),
       });
     } catch (error: any) {
       console.error("Error updating profile:", error);
       toast({
-        title: t("profile.updateFailed"),
+        title: t("profile.updateFailed", "Update Failed"),
         description: t("profile.updateFailedMessage", "Failed to update your profile"),
         variant: "destructive",
       });
