@@ -1,89 +1,119 @@
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Droplets, Thermometer, Pill, Star, Activity, Coffee } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { 
+  Droplet, 
+  Thermometer, 
+  Headphones, 
+  Coffee, 
+  Frown, 
+  Heart, 
+  Grid, 
+  Activity,
+  Zap
+} from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-export type SymptomType = "cramps" | "headache" | "bloating" | "fatigue" | "acne" | "cravings" | undefined;
+export type SymptomType = 
+  | "cramps" 
+  | "headache" 
+  | "bloating" 
+  | "fatigue" 
+  | "acne" 
+  | "cravings" 
+  | "mood_swings" 
+  | "breast_tenderness"
+  | undefined;
 
 interface SymptomSelectorProps {
   selectedSymptoms: SymptomType[];
   onSymptomToggle: (symptom: SymptomType) => void;
 }
 
-export const getSymptomIcon = (symptom: SymptomType, size = 20) => {
+// Function to get icon for symptom
+export const getSymptomIcon = (symptom: SymptomType, size: number = 16) => {
+  if (!symptom) return null;
+  
+  const iconProps = { size, className: "text-femme-burgundy" };
+  
   switch (symptom) {
     case "cramps":
-      return <Droplets size={size} className="text-red-500" />;
+      return <Zap {...iconProps} />;
     case "headache":
-      return <Thermometer size={size} className="text-orange-500" />;
+      return <Thermometer {...iconProps} />;
     case "bloating":
-      return <Pill size={size} className="text-purple-500" />;
+      return <Droplet {...iconProps} />;
     case "fatigue":
-      return <Coffee size={size} className="text-blue-400" />;
+      return <Coffee {...iconProps} />;
     case "acne":
-      return <Star size={size} className="text-yellow-500" />;
+      return <Frown {...iconProps} />;
     case "cravings":
-      return <Activity size={size} className="text-green-500" />;
+      return <Heart {...iconProps} />;
+    case "mood_swings":
+      return <Activity {...iconProps} />;
+    case "breast_tenderness":
+      return <Grid {...iconProps} />;
     default:
       return null;
   }
 };
 
-export const getSymptomLabel = (symptom: SymptomType, t: any) => {
-  switch (symptom) {
-    case "cramps":
-      return t("symptoms.cramps", "Cramps");
-    case "headache":
-      return t("symptoms.headache", "Headache");
-    case "bloating":
-      return t("symptoms.bloating", "Bloating");
-    case "fatigue":
-      return t("symptoms.fatigue", "Fatigue");
-    case "acne":
-      return t("symptoms.acne", "Acne");
-    case "cravings":
-      return t("symptoms.cravings", "Cravings");
-    default:
-      return "";
-  }
+// Function to get label for symptom
+export const getSymptomLabel = (symptom: SymptomType): string => {
+  if (!symptom) return '';
+  
+  // Use a simple approach for now to avoid translation errors
+  const labels: Record<SymptomType, string> = {
+    "cramps": "Cramps",
+    "headache": "Headache",
+    "bloating": "Bloating",
+    "fatigue": "Fatigue",
+    "acne": "Acne",
+    "cravings": "Cravings",
+    "mood_swings": "Mood Swings",
+    "breast_tenderness": "Breast Tenderness",
+    "undefined": ""
+  };
+  
+  return labels[symptom] || symptom;
 };
 
-const SymptomSelector: React.FC<SymptomSelectorProps> = ({ selectedSymptoms, onSymptomToggle }) => {
+const SymptomSelector: React.FC<SymptomSelectorProps> = ({ 
+  selectedSymptoms, 
+  onSymptomToggle 
+}) => {
   const { t } = useTranslation();
   
-  const symptoms: { type: SymptomType; label: string }[] = [
-    { type: "cramps", label: t("symptoms.cramps", "Cramps") },
-    { type: "headache", label: t("symptoms.headache", "Headache") },
-    { type: "bloating", label: t("symptoms.bloating", "Bloating") },
-    { type: "fatigue", label: t("symptoms.fatigue", "Fatigue") },
-    { type: "acne", label: t("symptoms.acne", "Acne") },
-    { type: "cravings", label: t("symptoms.cravings", "Cravings") },
+  const symptoms: SymptomType[] = [
+    "cramps", 
+    "headache", 
+    "bloating", 
+    "fatigue", 
+    "acne", 
+    "cravings", 
+    "mood_swings", 
+    "breast_tenderness"
   ];
-
+  
   return (
-    <Card className="border-femme-taupe border-opacity-50">
-      <CardContent className="pt-4">
-        <div className="flex flex-wrap gap-2 justify-center">
-          {symptoms.map((symptom) => (
-            <Button
-              key={symptom.type}
-              variant={selectedSymptoms.includes(symptom.type) ? "default" : "outline"}
-              className={`flex flex-col items-center px-3 py-2 h-auto ${
-                selectedSymptoms.includes(symptom.type) 
-                  ? "bg-femme-pink text-white" 
-                  : "hover:bg-femme-pink-light"
-              }`}
-              onClick={() => onSymptomToggle(symptom.type)}
-            >
-              {getSymptomIcon(symptom.type)}
-              <span className="text-xs mt-1">{symptom.label}</span>
-            </Button>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      {symptoms.map((symptom) => (
+        <button
+          key={symptom}
+          type="button"
+          onClick={() => onSymptomToggle(symptom)}
+          className={`flex items-center gap-2 p-2 rounded-lg border transition-colors ${
+            selectedSymptoms.includes(symptom)
+              ? "bg-femme-pink text-white border-femme-burgundy"
+              : "bg-white text-femme-burgundy border-femme-taupe hover:bg-femme-pink-light/30"
+          }`}
+        >
+          {getSymptomIcon(symptom)}
+          <span className="text-sm">
+            {getSymptomLabel(symptom)}
+          </span>
+        </button>
+      ))}
+    </div>
   );
 };
 
