@@ -77,7 +77,7 @@ export function useSupabaseData<T>(
     fetchData();
   }, [fetchData]);
 
-  const updateData = useCallback(async (id: string, updates: Partial<T>) => {
+  const updateData = useCallback(async (id: string, updates: Partial<Record<string, any>>) => {
     if (!user) return { data: null, error: new Error("User not authenticated") as unknown as PostgrestError };
     
     try {
@@ -102,7 +102,7 @@ export function useSupabaseData<T>(
     }
   }, [user, options.table, fetchData]);
 
-  const insertData = useCallback(async (newData: Partial<T>) => {
+  const insertData = useCallback(async (newData: Partial<Record<string, any>>) => {
     if (!user) return { data: null, error: new Error("User not authenticated") as unknown as PostgrestError };
     
     try {

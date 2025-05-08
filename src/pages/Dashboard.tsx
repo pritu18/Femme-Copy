@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { format, differenceInDays, isSameDay, isWithinInterval, addDays } from "date-fns";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -921,7 +920,7 @@ export default function Dashboard() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddPeriodDialog(false)}>
-              {t("auth.login")}
+              {t("auth.cancel")}
             </Button>
             <Button type="submit" onClick={addNewPeriod}>
               {t("profile.save").split(" ")[0]}
