@@ -30,13 +30,20 @@ i18n
   .init({
     resources,
     fallbackLng: "en",
+    debug: process.env.NODE_ENV === 'development', // Enable debug in development mode
     interpolation: {
       escapeValue: false // react already safes from xss
     },
     detection: {
       order: ['localStorage', 'navigator'],
-      caches: ['localStorage']
+      caches: ['localStorage'],
+      lookupLocalStorage: 'i18nextLng'
     }
   });
+
+// Function to change language that can be imported elsewhere
+export const changeLanguage = (lng: string) => {
+  return i18n.changeLanguage(lng);
+};
 
 export default i18n;

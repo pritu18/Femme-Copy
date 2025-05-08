@@ -16,8 +16,33 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 // Import i18n configuration
 import "./i18n/i18n";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 const queryClient = new QueryClient();
+
+// Language setup component to handle language initialization
+const LanguageSetup = () => {
+  const { i18n } = useTranslation();
+  
+  useEffect(() => {
+    // Set HTML lang attribute based on current language
+    document.documentElement.lang = i18n.language;
+    
+    // Add a listener for language changes
+    const handleLanguageChange = () => {
+      document.documentElement.lang = i18n.language;
+    };
+    
+    i18n.on('languageChanged', handleLanguageChange);
+    
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+    };
+  }, [i18n]);
+  
+  return null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -26,6 +51,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <LanguageSetup />
           <Routes>
             <Route path="/" element={<Auth />} />
             <Route path="/home" element={

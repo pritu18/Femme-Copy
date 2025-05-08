@@ -50,6 +50,8 @@
     "select": "Select Language",
     "en": "English",
     "hi": "हिंदी (Hindi)",
-    "ta": "தமிழ் (Tamil)"
+    "ta": "தமிழ் (Tamil)",
+    "changed": "Language Changed",
+    "changedDescription": "The application language has been updated."
   }
 }

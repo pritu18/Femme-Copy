@@ -50,6 +50,8 @@
     "select": "भाषा चुनें",
     "en": "English",
     "hi": "हिंदी (Hindi)",
-    "ta": "தமிழ் (Tamil)"
+    "ta": "தமிழ் (Tamil)",
+    "changed": "भाषा बदल गई है",
+    "changedDescription": "एप्लिकेशन की भाषा अपडेट कर दी गई है।"
   }
 }
