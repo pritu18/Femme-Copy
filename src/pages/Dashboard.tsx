@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { format, differenceInDays, isSameDay, isWithinInterval, addDays } from "date-fns";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +22,8 @@ import WaterIntakeTracker from "@/components/health/WaterIntakeTracker";
 import SleepTracker from "@/components/health/SleepTracker";
 import HealthInsights from "@/components/education/HealthInsights";
 import WeightTracker from "@/components/health/WeightTracker";
+import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 interface PeriodDay {
   date: Date;
@@ -39,6 +40,7 @@ interface PeriodCycle {
 }
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const [periodCycles, setPeriodCycles] = useState<PeriodCycle[]>([]);
   const [newStartDate, setNewStartDate] = useState<Date | undefined>(undefined);
   const [newEndDate, setNewEndDate] = useState<Date | undefined>(undefined);
@@ -251,16 +253,17 @@ export default function Dashboard() {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <Logo className="h-10" />
           <div className="flex gap-3">
+            <LanguageSwitcher />
             <Button variant="outline" asChild className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">
               <Link to="/profile">
                 <UserRound className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Profile</span>
+                <span className="hidden sm:inline">{t("nav.profile")}</span>
               </Link>
             </Button>
             <Button variant="outline" asChild className="border-femme-pink text-femme-burgundy hover:bg-femme-pink-light hover:text-femme-burgundy">
               <Link to="/store">
                 <ShoppingBag className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Store</span>
+                <span className="hidden sm:inline">{t("nav.store")}</span>
               </Link>
             </Button>
           </div>
@@ -269,13 +272,13 @@ export default function Dashboard() {
 
       <main className="container mx-auto px-4 py-6">
         <div className="mb-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-femme-burgundy">Hello, Beautiful</h1>
+          <h1 className="text-2xl font-bold text-femme-burgundy">{t("app.hello")}</h1>
           <Button 
             onClick={() => setShowAddPeriodDialog(true)} 
             className="bg-femme-pink hover:bg-femme-pink/90"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Track Period
+            {t("period.track")}
           </Button>
         </div>
         

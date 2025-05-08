@@ -2,7 +2,8 @@
 {
   "app": {
     "name": "Femme",
-    "tagline": "A Comprehensive Period Tracker"
+    "tagline": "A Comprehensive Period Tracker",
+    "hello": "Hello, Beautiful"
   },
   "auth": {
     "login": "Login",
@@ -33,7 +34,8 @@
     "cycle": "Cycle Analytics",
     "predictions": "Cycle Predictions",
     "symptoms": "Track Symptoms",
-    "mood": "Track Mood"
+    "mood": "Track Mood",
+    "track": "Track Period"
   },
   "health": {
     "waterIntake": "Water Intake Tracker",
