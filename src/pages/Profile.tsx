@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
+import { useSupabaseData } from "@/hooks/useSupabaseData";
 
 interface ProfileData {
   id: string;
@@ -23,9 +23,7 @@ interface ProfileData {
 
 export default function Profile() {
   const { t } = useTranslation();
-  const { user, signOut, loading } = useAuth();
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const { user, signOut } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -33,81 +31,69 @@ export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Fetch user profile data
+  // Use the enhanced useSupabaseData hook
+  const { 
+    data: profiles, 
+    loading: isLoading, 
+    updateData, 
+    insertData 
+  } = useSupabaseData<ProfileData>(
+    {
+      table: 'profiles',
+      column: 'id',
+      value: user?.id
+    },
+    [user?.id]
+  );
+  
+  const profile = profiles?.[0] || null;
+
+  // Initialize form with profile data
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) return;
-
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (error) {
-          throw error;
-        }
-
-        if (data) {
-          const profileData = data as ProfileData;
-          setProfile(profileData);
-          setFirstName(profileData.first_name || "");
-          setLastName(profileData.last_name || "");
-          setAvatarUrl(profileData.avatar_url || "");
-        }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-        toast({
-          title: t("profile.updateFailed"),
-          description: t("profile.updateFailed"),
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [user, toast, t]);
+    if (profile) {
+      setFirstName(profile.first_name || "");
+      setLastName(profile.last_name || "");
+      setAvatarUrl(profile.avatar_url || "");
+    }
+  }, [profile]);
 
   const handleSaveProfile = async () => {
     if (!user) return;
 
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
+      // Check if profile exists
+      if (profile) {
+        // Update existing profile
+        const { error } = await updateData(user.id, {
           first_name: firstName,
           last_name: lastName,
           updated_at: new Date().toISOString(),
-        })
-        .eq('id', user.id);
+        });
 
-      if (error) {
-        throw error;
+        if (error) throw error;
+      } else {
+        // Create new profile if doesn't exist
+        const { error } = await insertData({
+          id: user.id,
+          first_name: firstName,
+          last_name: lastName,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+
+        if (error) throw error;
       }
 
       toast({
         title: t("profile.updateSuccess"),
-        description: t("profile.updateSuccess"),
+        description: t("profile.updateSuccessMessage", "Your profile has been updated successfully"),
       });
-      
-      // Update the profile state
-      if (profile) {
-        setProfile({
-          ...profile,
-          first_name: firstName,
-          last_name: lastName,
-        });
-      }
     } catch (error: any) {
       console.error("Error updating profile:", error);
       toast({
         title: t("profile.updateFailed"),
-        description: t("profile.updateFailed"),
+        description: t("profile.updateFailedMessage", "Failed to update your profile"),
         variant: "destructive",
       });
     } finally {
@@ -125,7 +111,7 @@ export default function Profile() {
   };
 
   const getInitials = () => {
-    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U';
+    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U';
   };
 
   return (
