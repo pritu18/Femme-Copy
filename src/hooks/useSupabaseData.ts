@@ -5,7 +5,13 @@ import { PostgrestError } from "@supabase/supabase-js";
 import { useAuth } from "@/contexts/AuthContext";
 
 // Define allowed table names explicitly based on our database
-type TableName = "profiles" | "orders";
+type TableName = 
+  | "profiles" 
+  | "orders" 
+  | "period_cycles" 
+  | "period_days" 
+  | "sleep_data" 
+  | "water_intake";
 
 type FetchOptions = {
   table: TableName;
@@ -34,7 +40,7 @@ export function useSupabaseData<T>(
     try {
       setLoading(true);
       
-      // Using the from method with the table name (now properly typed)
+      // Using the from method with the table name
       let query = supabase.from(options.table).select(options.select || "*");
       
       if (options.column && options.value !== undefined) {
@@ -58,8 +64,9 @@ export function useSupabaseData<T>(
       setData(data as T[]);
       setError(null);
     } catch (err) {
-      setError(err as PostgrestError);
-      console.error("Error fetching data from Supabase:", err);
+      const pgError = err as PostgrestError;
+      setError(pgError);
+      console.error("Error fetching data from Supabase:", pgError);
     } finally {
       setLoading(false);
     }
@@ -71,7 +78,7 @@ export function useSupabaseData<T>(
   }, [fetchData]);
 
   const updateData = useCallback(async (id: string, updates: Partial<T>) => {
-    if (!user) return { data: null, error: { message: "User not authenticated" } as PostgrestError };
+    if (!user) return { data: null, error: new Error("User not authenticated") as unknown as PostgrestError };
     
     try {
       setLoading(true);
@@ -96,7 +103,7 @@ export function useSupabaseData<T>(
   }, [user, options.table, fetchData]);
 
   const insertData = useCallback(async (newData: Partial<T>) => {
-    if (!user) return { data: null, error: { message: "User not authenticated" } as PostgrestError };
+    if (!user) return { data: null, error: new Error("User not authenticated") as unknown as PostgrestError };
     
     try {
       setLoading(true);

@@ -1,47 +1,74 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Plus, Minus } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { format, addDays, subDays } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useSupabaseData } from "@/hooks/useSupabaseData";
 
 interface SleepData {
+  id?: string;
+  user_id?: string;
   date: string; // ISO date string
   hours: number;
   quality: 1 | 2 | 3 | 4 | 5; // 1-5 stars
   notes?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const SleepTracker: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [sleepData, setSleepData] = useState<SleepData[]>([]);
   const [hours, setHours] = useState<number>(8);
   const [quality, setQuality] = useState<1 | 2 | 3 | 4 | 5>(3);
   const [notes, setNotes] = useState("");
   const [showNotes, setShowNotes] = useState(false);
+  const { toast } = useToast();
+  const { user } = useAuth();
+  
+  // Fetch sleep data from Supabase
+  const { 
+    data: sleepData, 
+    loading: sleepLoading,
+    insertData: insertSleep,
+    updateData: updateSleep
+  } = useSupabaseData<SleepData>(
+    {
+      table: "sleep_data",
+      column: "user_id",
+      value: user?.id,
+      orderBy: { column: "date", ascending: false }
+    },
+    [user?.id]
+  );
 
-  // Load sleep data from localStorage
+  // Set up local backup for offline use
   useEffect(() => {
-    const savedSleepData = localStorage.getItem('sleepData');
-    if (savedSleepData) {
-      setSleepData(JSON.parse(savedSleepData));
-    }
-  }, []);
-
-  // Save sleep data to localStorage when it changes
-  useEffect(() => {
-    if (sleepData.length > 0) {
+    if (sleepData && sleepData.length > 0) {
       localStorage.setItem('sleepData', JSON.stringify(sleepData));
+    } else {
+      // Load from localStorage if no Supabase data
+      const savedSleepData = localStorage.getItem('sleepData');
+      if (savedSleepData && !sleepData?.length && !sleepLoading) {
+        try {
+          const parsedData = JSON.parse(savedSleepData);
+          // We don't directly set Supabase data here, just use it as a display backup
+        } catch (error) {
+          console.error("Error parsing saved sleep data:", error);
+        }
+      }
     }
-  }, [sleepData]);
+  }, [sleepData, sleepLoading]);
 
   // Get sleep data for selected date
   const getDataForDate = (date: Date): SleepData | undefined => {
+    if (!sleepData) return undefined;
     const dateString = date.toISOString().split('T')[0];
-    return sleepData.find(data => data.date === dateString);
+    return sleepData.find(data => data.date.split('T')[0] === dateString);
   };
 
   // Update UI when selected date changes
@@ -56,31 +83,50 @@ const SleepTracker: React.FC = () => {
       setQuality(3);
       setNotes("");
     }
-  }, [selectedDate]);
+  }, [selectedDate, sleepData]);
 
-  const handleSave = () => {
-    const dateString = selectedDate.toISOString().split('T')[0];
-    const existingDataIndex = sleepData.findIndex(data => data.date === dateString);
+  const handleSave = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to save your sleep data",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    const newData: SleepData = {
+    const dateString = selectedDate.toISOString();
+    const existingData = getDataForDate(selectedDate);
+    
+    const sleepEntry: SleepData = {
+      user_id: user.id,
       date: dateString,
       hours,
       quality,
       notes: notes || undefined
     };
 
-    if (existingDataIndex >= 0) {
-      const updatedData = [...sleepData];
-      updatedData[existingDataIndex] = newData;
-      setSleepData(updatedData);
-    } else {
-      setSleepData([...sleepData, newData]);
-    }
+    try {
+      if (existingData?.id) {
+        // Update existing entry
+        await updateSleep(existingData.id, sleepEntry);
+      } else {
+        // Create new entry
+        await insertSleep(sleepEntry);
+      }
 
-    toast({
-      title: "Sleep data saved",
-      description: `Recorded ${hours} hours of sleep for ${format(selectedDate, "MMM d, yyyy")}`,
-    });
+      toast({
+        title: "Sleep data saved",
+        description: `Recorded ${hours} hours of sleep for ${format(selectedDate, "MMM d, yyyy")}`,
+      });
+    } catch (error) {
+      console.error("Error saving sleep data:", error);
+      toast({
+        title: "Error saving data",
+        description: "There was a problem saving your sleep data. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const changeDate = (days: number) => {

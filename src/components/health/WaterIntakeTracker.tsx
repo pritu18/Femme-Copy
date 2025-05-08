@@ -1,11 +1,22 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Droplets, Plus, Minus } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useSupabaseData } from "@/hooks/useSupabaseData";
+
+interface WaterIntakeData {
+  id?: string;
+  user_id?: string;
+  date: string;
+  amount_ml: number;
+  created_at?: string;
+  updated_at?: string;
+}
 
 interface WaterIntakeTrackerProps {
   initialIntake?: number;
@@ -19,6 +30,25 @@ const WaterIntakeTracker: React.FC<WaterIntakeTrackerProps> = ({
   const [waterIntake, setWaterIntake] = useState(initialIntake);
   const [goal, setGoal] = useState(2000); // Default goal: 2000ml (2L)
   const [percentage, setPercentage] = useState(0);
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const today = new Date().toISOString().split('T')[0];
+
+  // Fetch water intake data from Supabase
+  const { 
+    data: waterData, 
+    loading: waterLoading,
+    insertData: insertWaterIntake,
+    updateData: updateWaterIntake
+  } = useSupabaseData<WaterIntakeData>(
+    {
+      table: "water_intake",
+      column: "user_id",
+      value: user?.id,
+      orderBy: { column: "date", ascending: false }
+    },
+    [user?.id]
+  );
 
   // Calculate percentage whenever waterIntake changes
   useEffect(() => {
@@ -26,42 +56,89 @@ const WaterIntakeTracker: React.FC<WaterIntakeTrackerProps> = ({
     setPercentage(newPercentage);
   }, [waterIntake, goal]);
 
-  // Load saved water intake from localStorage
+  // Get today's water intake from Supabase data
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    const savedIntake = localStorage.getItem(`waterIntake_${today}`);
-    if (savedIntake) {
-      setWaterIntake(parseInt(savedIntake, 10));
-    } else {
-      setWaterIntake(0);
+    if (waterData && !waterLoading) {
+      const todayEntry = waterData.find(entry => entry.date.split('T')[0] === today);
+      
+      if (todayEntry) {
+        setWaterIntake(todayEntry.amount_ml);
+      } else {
+        // Load from localStorage as backup if no Supabase data
+        const savedIntake = localStorage.getItem(`waterIntake_${today}`);
+        if (savedIntake) {
+          setWaterIntake(parseInt(savedIntake, 10));
+        } else {
+          setWaterIntake(0);
+        }
+      }
+      
+      const savedGoal = localStorage.getItem('waterIntakeGoal');
+      if (savedGoal) {
+        setGoal(parseInt(savedGoal, 10));
+      }
     }
-    
-    const savedGoal = localStorage.getItem('waterIntakeGoal');
-    if (savedGoal) {
-      setGoal(parseInt(savedGoal, 10));
-    }
-  }, []);
+  }, [waterData, waterLoading, today]);
 
-  // Save water intake whenever it changes
+  // Save water intake whenever it changes (to localStorage as backup)
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
     localStorage.setItem(`waterIntake_${today}`, waterIntake.toString());
     if (onUpdate) onUpdate(waterIntake);
-  }, [waterIntake, onUpdate]);
+  }, [waterIntake, today, onUpdate]);
   
   // Save goal whenever it changes
   useEffect(() => {
     localStorage.setItem('waterIntakeGoal', goal.toString());
   }, [goal]);
 
-  const addWater = (amount: number) => {
+  // Find today's record to determine if we need to update or insert
+  const getTodayRecord = (): WaterIntakeData | undefined => {
+    if (!waterData) return undefined;
+    return waterData.find(entry => entry.date.split('T')[0] === today);
+  };
+
+  const addWater = async (amount: number) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to track your water intake",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const newTotal = Math.max(0, waterIntake + amount);
     setWaterIntake(newTotal);
     
-    if (amount > 0) {
+    try {
+      const todayRecord = getTodayRecord();
+      
+      const waterEntry: WaterIntakeData = {
+        user_id: user.id,
+        date: new Date().toISOString(),
+        amount_ml: newTotal
+      };
+      
+      if (todayRecord?.id) {
+        // Update existing record
+        await updateWaterIntake(todayRecord.id, waterEntry);
+      } else {
+        // Create new record
+        await insertWaterIntake(waterEntry);
+      }
+      
+      if (amount > 0) {
+        toast({
+          title: "Water intake tracked",
+          description: `Added ${amount}ml of water. Keep it up! 💧`,
+        });
+      }
+    } catch (error) {
+      console.error("Error saving water intake data:", error);
       toast({
-        title: "Water intake tracked",
-        description: `Added ${amount}ml of water. Keep it up! 💧`,
+        title: "Error saving data",
+        description: "There was a problem saving your water intake. Please try again.",
+        variant: "destructive"
       });
     }
   };

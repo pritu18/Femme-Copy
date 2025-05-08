@@ -26,6 +26,7 @@ import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSupabaseData } from "@/hooks/useSupabaseData";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PeriodDay {
   date: Date;
@@ -35,6 +36,7 @@ interface PeriodDay {
 }
 
 interface PeriodCycle {
+  id?: string;
   startDate: Date;
   endDate?: Date;
   notes?: string;
@@ -48,19 +50,46 @@ interface CycleData {
   start_date: string;
   end_date: string | null;
   notes: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
-interface SymptomData {
+interface PeriodDayData {
+  id: string;
+  cycle_id: string;
+  user_id: string;
+  date: string;
+  mood: string | null;
+  symptoms: string[] | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface SleepData {
   id: string;
   user_id: string;
   date: string;
-  symptoms: string[];
+  hours: number;
+  quality: number;
   notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface WaterIntakeData {
+  id: string;
+  user_id: string;
+  date: string;
+  amount_ml: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export default function Dashboard() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [periodCycles, setPeriodCycles] = useState<PeriodCycle[]>([]);
   const [newStartDate, setNewStartDate] = useState<Date | undefined>(undefined);
   const [newEndDate, setNewEndDate] = useState<Date | undefined>(undefined);
@@ -73,11 +102,81 @@ export default function Dashboard() {
   const [showSymptomDialog, setShowSymptomDialog] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("period");
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  // Load saved periods from localStorage on component mount
+  // Fetch cycle data from Supabase
+  const { 
+    data: cycleData, 
+    loading: cycleLoading,
+    insertData: insertCycle,
+    updateData: updateCycle
+  } = useSupabaseData<CycleData>(
+    {
+      table: "period_cycles",
+      column: "user_id",
+      value: user?.id,
+      orderBy: { column: "start_date", ascending: false }
+    },
+    [user?.id]
+  );
+
+  // Fetch period days data from Supabase
+  const { 
+    data: periodDaysData, 
+    loading: periodDaysLoading,
+    insertData: insertPeriodDay,
+    updateData: updatePeriodDay
+  } = useSupabaseData<PeriodDayData>(
+    {
+      table: "period_days",
+      column: "user_id",
+      value: user?.id,
+      orderBy: { column: "date", ascending: false }
+    },
+    [user?.id]
+  );
+
+  // Convert Supabase data to local format on initial load
+  useEffect(() => {
+    if (isInitialLoading && cycleData && periodDaysData && !cycleLoading && !periodDaysLoading) {
+      // Process cycle data
+      const cycles: PeriodCycle[] = cycleData.map(cycle => {
+        const cycleDays = periodDaysData
+          .filter(day => day.cycle_id === cycle.id)
+          .map(day => ({
+            date: new Date(day.date),
+            mood: day.mood as MoodType,
+            symptoms: day.symptoms as SymptomType[],
+            notes: day.notes || undefined
+          }));
+
+        return {
+          id: cycle.id,
+          startDate: new Date(cycle.start_date),
+          endDate: cycle.end_date ? new Date(cycle.end_date) : undefined,
+          notes: cycle.notes || undefined,
+          days: cycleDays
+        };
+      });
+
+      setPeriodCycles(cycles);
+      setIsInitialLoading(false);
+    }
+  }, [cycleData, periodDaysData, cycleLoading, periodDaysLoading, isInitialLoading]);
+
+  // Save to localStorage as a backup
+  useEffect(() => {
+    if (!isInitialLoading && periodCycles.length > 0) {
+      localStorage.setItem("periodCycles", JSON.stringify(periodCycles));
+    }
+  }, [periodCycles, isInitialLoading]);
+
+  // Load from localStorage only if no data from Supabase yet
   useEffect(() => {
     const savedPeriodCycles = localStorage.getItem("periodCycles");
-    if (savedPeriodCycles) {
+    
+    // Only use localStorage data if we don't have Supabase data yet
+    if (savedPeriodCycles && isInitialLoading && !cycleData?.length) {
       try {
         const parsedCycles = JSON.parse(savedPeriodCycles, (key, value) => {
           // Convert date strings back to Date objects
@@ -91,12 +190,7 @@ export default function Dashboard() {
         console.error("Error parsing saved period cycles:", error);
       }
     }
-  }, []);
-
-  // Save periods to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("periodCycles", JSON.stringify(periodCycles));
-  }, [periodCycles]);
+  }, [isInitialLoading, cycleData]);
 
   const getAllPeriodDays = () => {
     const allDays: PeriodDay[] = [];
@@ -126,47 +220,95 @@ export default function Dashboard() {
     return periodCycles[periodCycles.length - 1];
   };
 
-  const addNewPeriod = () => {
-    if (!newStartDate) {
+  const addNewPeriod = async () => {
+    if (!newStartDate || !user) {
       toast({
         title: "Missing information",
-        description: "Please select a start date for your period.",
+        description: "Please select a start date for your period or log in.",
         variant: "destructive",
       });
       return;
     }
 
-    const newCycle: PeriodCycle = {
-      startDate: newStartDate,
-      endDate: newEndDate,
-      notes: newNotes,
-      days: [],
-    };
+    try {
+      // Create new cycle in Supabase
+      const { data: newCycleData, error: cycleError } = await insertCycle({
+        user_id: user.id,
+        start_date: newStartDate.toISOString(),
+        end_date: newEndDate ? newEndDate.toISOString() : null,
+        notes: newNotes || null,
+      });
 
-    if (newEndDate) {
-      const daysDiff = differenceInDays(newEndDate, newStartDate);
+      if (cycleError) throw cycleError;
       
-      for (let i = 0; i <= daysDiff; i++) {
-        const date = addDays(newStartDate, i);
-        newCycle.days.push({ date });
+      if (!newCycleData || !newCycleData[0]) {
+        throw new Error("Failed to create period cycle");
       }
-    } else {
-      newCycle.days.push({ date: newStartDate });
-    }
 
-    setPeriodCycles(prev => [...prev, newCycle]);
-    
-    toast({
-      title: "Period logged",
-      description: `Your period has been recorded starting on ${format(newStartDate, "MMMM d, yyyy")}${
-        newEndDate ? ` ending on ${format(newEndDate, "MMMM d, yyyy")}` : ""
-      }.`,
-    });
-    
-    setNewStartDate(undefined);
-    setNewEndDate(undefined);
-    setNewNotes("");
-    setShowAddPeriodDialog(false);
+      const cycleId = newCycleData[0].id;
+      
+      // Create period days in Supabase
+      if (newEndDate) {
+        const daysDiff = differenceInDays(newEndDate, newStartDate);
+        
+        for (let i = 0; i <= daysDiff; i++) {
+          const date = addDays(newStartDate, i);
+          
+          await insertPeriodDay({
+            cycle_id: cycleId,
+            user_id: user.id,
+            date: date.toISOString(),
+          });
+        }
+      } else {
+        await insertPeriodDay({
+          cycle_id: cycleId,
+          user_id: user.id,
+          date: newStartDate.toISOString(),
+        });
+      }
+
+      // Update local state
+      const newCycle: PeriodCycle = {
+        id: cycleId,
+        startDate: newStartDate,
+        endDate: newEndDate,
+        notes: newNotes,
+        days: [],
+      };
+
+      if (newEndDate) {
+        const daysDiff = differenceInDays(newEndDate, newStartDate);
+        
+        for (let i = 0; i <= daysDiff; i++) {
+          const date = addDays(newStartDate, i);
+          newCycle.days.push({ date });
+        }
+      } else {
+        newCycle.days.push({ date: newStartDate });
+      }
+
+      setPeriodCycles(prev => [...prev, newCycle]);
+      
+      toast({
+        title: "Period logged",
+        description: `Your period has been recorded starting on ${format(newStartDate, "MMMM d, yyyy")}${
+          newEndDate ? ` ending on ${format(newEndDate, "MMMM d, yyyy")}` : ""
+        }.`,
+      });
+      
+      setNewStartDate(undefined);
+      setNewEndDate(undefined);
+      setNewNotes("");
+      setShowAddPeriodDialog(false);
+    } catch (error) {
+      console.error("Error saving period data:", error);
+      toast({
+        title: "Error saving data",
+        description: "There was an error saving your period data. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const isPeriodDay = (date: Date) => {
@@ -203,25 +345,77 @@ export default function Dashboard() {
     }
   };
 
-  const saveMoodForDay = () => {
-    if (!selectedDayForMood) return;
+  const saveMoodForDay = async () => {
+    if (!selectedDayForMood || !user) return;
 
-    const updatedCycles = periodCycles.map(cycle => {
-      const updatedDays = cycle.days.map(day => {
-        if (isSameDay(day.date, selectedDayForMood.date)) {
-          return { ...day, mood: selectedMood };
+    try {
+      // Find the cycle this day belongs to
+      let cycleId: string | undefined;
+      let dayId: string | undefined;
+      
+      for (const cycle of periodCycles) {
+        const dayIndex = cycle.days.findIndex(day => 
+          isSameDay(day.date, selectedDayForMood.date)
+        );
+        if (dayIndex >= 0) {
+          cycleId = cycle.id;
+          // Check if this day already exists in Supabase
+          const existingDay = periodDaysData?.find(d => 
+            isSameDay(new Date(d.date), selectedDayForMood.date) && 
+            d.cycle_id === cycleId
+          );
+          if (existingDay) {
+            dayId = existingDay.id;
+          }
+          break;
         }
-        return day;
-      });
-      return { ...cycle, days: updatedDays };
-    });
+      }
 
-    setPeriodCycles(updatedCycles);
-    toast({
-      title: "Mood logged",
-      description: `You're feeling ${getMoodLabel(selectedMood)} on ${format(selectedDayForMood.date, "MMMM d, yyyy")}`,
-    });
-    setShowMoodDialog(false);
+      if (!cycleId) {
+        throw new Error("Could not find associated cycle");
+      }
+
+      if (dayId) {
+        // Update existing day
+        await updatePeriodDay(dayId, {
+          mood: selectedMood,
+        });
+      } else {
+        // Create new day
+        await insertPeriodDay({
+          cycle_id: cycleId,
+          user_id: user.id,
+          date: selectedDayForMood.date.toISOString(),
+          mood: selectedMood,
+        });
+      }
+
+      // Update local state
+      const updatedCycles = periodCycles.map(cycle => {
+        const updatedDays = cycle.days.map(day => {
+          if (isSameDay(day.date, selectedDayForMood.date)) {
+            return { ...day, mood: selectedMood };
+          }
+          return day;
+        });
+        return { ...cycle, days: updatedDays };
+      });
+
+      setPeriodCycles(updatedCycles);
+      
+      toast({
+        title: "Mood logged",
+        description: `You're feeling ${getMoodLabel(selectedMood, t)} on ${format(selectedDayForMood.date, "MMMM d, yyyy")}`,
+      });
+      setShowMoodDialog(false);
+    } catch (error) {
+      console.error("Error saving mood data:", error);
+      toast({
+        title: "Error saving mood",
+        description: "There was an error saving your mood data. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const getMoodForDay = (date: Date): MoodType => {
@@ -242,29 +436,83 @@ export default function Dashboard() {
     }
   };
 
-  const saveSymptoms = (symptoms: SymptomType[], notes: string) => {
-    if (!selectedDayForSymptoms) return;
+  const saveSymptoms = async (symptoms: SymptomType[], notes: string) => {
+    if (!selectedDayForSymptoms || !user) return;
 
-    const updatedCycles = periodCycles.map(cycle => {
-      const updatedDays = cycle.days.map(day => {
-        if (isSameDay(day.date, selectedDayForSymptoms.date)) {
-          return { 
-            ...day, 
-            symptoms,
-            notes: notes || day.notes 
-          };
+    try {
+      // Find the cycle this day belongs to
+      let cycleId: string | undefined;
+      let dayId: string | undefined;
+      
+      for (const cycle of periodCycles) {
+        const dayIndex = cycle.days.findIndex(day => 
+          isSameDay(day.date, selectedDayForSymptoms.date)
+        );
+        if (dayIndex >= 0) {
+          cycleId = cycle.id;
+          // Check if this day already exists in Supabase
+          const existingDay = periodDaysData?.find(d => 
+            isSameDay(new Date(d.date), selectedDayForSymptoms.date) && 
+            d.cycle_id === cycleId
+          );
+          if (existingDay) {
+            dayId = existingDay.id;
+          }
+          break;
         }
-        return day;
-      });
-      return { ...cycle, days: updatedDays };
-    });
+      }
 
-    setPeriodCycles(updatedCycles);
-    toast({
-      title: "Symptoms tracked",
-      description: `Symptoms saved for ${format(selectedDayForSymptoms.date, "MMMM d, yyyy")}`,
-    });
-    setShowSymptomDialog(false);
+      if (!cycleId) {
+        throw new Error("Could not find associated cycle");
+      }
+
+      if (dayId) {
+        // Update existing day
+        await updatePeriodDay(dayId, {
+          symptoms,
+          notes: notes || null,
+        });
+      } else {
+        // Create new day
+        await insertPeriodDay({
+          cycle_id: cycleId,
+          user_id: user.id,
+          date: selectedDayForSymptoms.date.toISOString(),
+          symptoms,
+          notes: notes || null,
+        });
+      }
+
+      // Update local state
+      const updatedCycles = periodCycles.map(cycle => {
+        const updatedDays = cycle.days.map(day => {
+          if (isSameDay(day.date, selectedDayForSymptoms.date)) {
+            return { 
+              ...day, 
+              symptoms,
+              notes: notes || day.notes 
+            };
+          }
+          return day;
+        });
+        return { ...cycle, days: updatedDays };
+      });
+
+      setPeriodCycles(updatedCycles);
+      
+      toast({
+        title: "Symptoms tracked",
+        description: `Symptoms saved for ${format(selectedDayForSymptoms.date, "MMMM d, yyyy")}`,
+      });
+      setShowSymptomDialog(false);
+    } catch (error) {
+      console.error("Error saving symptom data:", error);
+      toast({
+        title: "Error saving symptoms",
+        description: "There was an error saving your symptom data. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const { data: cycleData, loading: cycleLoading } = useSupabaseData<CycleData>(
